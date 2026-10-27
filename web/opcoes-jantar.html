@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Opções de jantar · Ateliê Ipiranga</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --paper: #EDEEEC; --sheet: #F8F8F6; --ink: #1C1D1F; --muted: #5F6166; --rule: #CDCFCB; --pen: #2B55C8; --chip: #FFFFFF;
+  --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --body: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --paper: #151618; --sheet: #1D1F22; --ink: #ECEDEA; --muted: #A0A3A9; --rule: #34373B; --pen: #7FA2FF; --chip: #26292D; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --paper: #151618; --sheet: #1D1F22; --ink: #ECEDEA; --muted: #A0A3A9; --rule: #34373B; --pen: #7FA2FF; --chip: #26292D; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 16px/1.55 var(--body); }
+.wrap { max-width: 1280px; margin: 0 auto; padding: 32px 16px 64px; }
+h1, h2 { font-family: var(--display); margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(32px, 5vw, 56px); font-weight: 800; font-stretch: 115%; line-height: 1; }
+.lead { color: var(--muted); max-width: 72ch; margin: 14px 0 0; }
+a { color: var(--pen); }
+.label { font: 500 11px/1.2 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.opt { border-top: 2px solid var(--ink); margin-top: 44px; padding-top: 16px; display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 24px; }
+.opt h2 { font-size: 28px; font-weight: 700; font-stretch: 108%; margin: 4px 0 10px; }
+.opt p { color: var(--muted); margin: 0 0 12px; }
+.opt figure { margin: 0; display: grid; gap: 10px; }
+.opt img { width: 100%; height: auto; display: block; background: var(--sheet); }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+figcaption { font: 500 12px/1.3 var(--mono); color: var(--muted); }
+.plan { background: #F3F1EC; padding: 6px; }
+ul { margin: 0 0 12px; padding-left: 18px; }
+li { margin-bottom: 4px; }
+.pros li::marker { content: "+  "; color: #2E7D4F; }
+.cons li::marker { content: "–  "; color: #B5583A; }
+.rec { display: inline-block; font: 600 12px/1 var(--body); color: #fff; background: var(--pen); border-radius: 999px; padding: 5px 10px; margin-left: 6px; vertical-align: middle; }
+.dims { font-family: var(--mono); font-size: 13px; color: var(--ink); }
+@media (max-width: 860px) { .opt { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <span class="label">Ateliê Ipiranga · sala</span>
+  <h1>Onde comer na sala</h1>
+  <p class="lead">A sala tem 2,41 m entre o sofá e a parede da TV, então uma mesa fixa no meio fica no caminho de quem assiste e de quem circula. Estas são três saídas que deixam o meio livre. Mesmo ponto de vista em todas, paleta Terra Paulista. <a href="./">Voltar ao projeto</a></p>
+
+  <section class="opt">
+    <figure>
+      <img src="opcoes/bancada_sala.jpg" alt="Bancada de madeira sob a janela com duas banquetas altas" width="1600" height="1067">
+    </figure>
+    <div>
+      <span class="label">Opção A</span>
+      <h2>Bancada na janela <span class="rec">recomendada</span></h2>
+      <p>Uma bancada de freijó presa na parede logo abaixo do peitoril, com mãos-francesas de metal, e duas banquetas altas que ficam encaixadas embaixo quando ninguém está comendo.</p>
+      <p class="dims">bancada 100 x 38 cm, altura 97 cm · banquetas Ø 37 cm, assento a 66 cm</p>
+      <ul class="pros"><li>O meio da sala fica livre o tempo todo</li><li>Come olhando a vista e com luz natural</li><li>Serve de apoio para notebook e café</li></ul>
+      <ul class="cons"><li>Duas pessoas lado a lado, não frente a frente</li><li>Banqueta alta é menos confortável para refeições longas</li></ul>
+      <figure><img class="plan" src="opcoes/bancada_planta.jpg" alt="Planta da sala com a bancada na janela" width="1053" height="629"><figcaption>planta da sala</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="opt">
+    <figure>
+      <div class="pair">
+        <img src="opcoes/rebativel_fechada_sala.jpg" alt="Painel de madeira com a mesa rebatível fechada" width="1600" height="1067">
+        <img src="opcoes/rebativel_sala.jpg" alt="Mesa rebatível aberta com duas cadeiras" width="1600" height="1067">
+      </div>
+      <figcaption>fechada (dia a dia) · aberta (na hora de comer)</figcaption>
+    </figure>
+    <div>
+      <span class="label">Opção B</span>
+      <h2>Mesa rebatível na parede</h2>
+      <p>Um painel de freijó sob a janela esconde um tampo que abre para baixo, apoiado em braços articulados. Fechado, ocupa 6 cm. Aberto, vira uma mesa para duas pessoas sentadas.</p>
+      <p class="dims">tampo 84 x 50 cm, altura 75 cm · fechado: 6 cm de parede</p>
+      <ul class="pros"><li>Mesa de verdade, em altura de refeição</li><li>Fechada, a sala fica totalmente livre</li></ul>
+      <ul class="cons"><li>Precisa abrir e fechar a cada refeição</li><li>Aberta, as cadeiras voltam para o eixo sofá–TV</li><li>As cadeiras precisam ser guardadas em outro lugar</li></ul>
+      <figure><img class="plan" src="opcoes/rebativel_planta.jpg" alt="Planta da sala com a mesa rebatível aberta" width="1053" height="629"><figcaption>planta da sala, mesa aberta</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="opt">
+    <figure>
+      <img src="opcoes/centro_sala.jpg" alt="Mesa de centro com tampo elevado na frente do sofá" width="1600" height="1067">
+    </figure>
+    <div>
+      <span class="label">Opção C</span>
+      <h2>Sofá + mesa de centro elevatória</h2>
+      <p>Sem área de jantar fixa: a mesa de centro tem um tampo que sobe até a altura de refeição e vem em direção ao sofá. O banco-baú sob a janela continua, agora como canto de leitura.</p>
+      <p class="dims">mesa 90 x 50 cm · tampo sobe de 40 para 63 cm</p>
+      <ul class="pros"><li>Maior área livre e o banco continua com o baú</li><li>Mesa de centro e de refeição numa peça só</li></ul>
+      <ul class="cons"><li>Comer no sofá é informal</li><li>Ruim para receber alguém para jantar</li></ul>
+      <figure><img class="plan" src="opcoes/centro_planta.jpg" alt="Planta da sala com a mesa de centro elevatória" width="1053" height="629"><figcaption>planta da sala</figcaption></figure>
+    </div>
+  </section>
+</main>
+</body>
+</html>

@@ -8,4 +8,5 @@ rsync -a --delete site/img2/ web/img2/
 rsync -a --delete site/models2/ web/models2/
 rsync -a --delete site/items/ web/items/
 cp Ares_Ipiranga_Atelie_Projeto3D.pdf web/
+cp site/opcoes-jantar.html web/ 2>/dev/null; [ -d site/opcoes ] && rsync -a site/opcoes/ web/opcoes/
 du -sh web

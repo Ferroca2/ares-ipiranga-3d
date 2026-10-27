@@ -328,31 +328,7 @@ def sala(P, M, rnd):
     am = image_mat(f"Arte sala {P['label']}", os.path.join(art.OUT, f"{P['key']}_art_sala.jpg"), rough=0.7)
     picture("Sala_arte", 1.00, 5.19, 1.10, 1.00, 0.70, "+y", am, M["wood_dark"], passe=M["paper"], depth=0.03)
 
-    # ---- Canto alemão sob a janela: banco-baú + mesa 0,60 × 0,80 + cadeira de palhinha
-    bx0, bx1, by0, by1 = 0.0, 0.42, 6.12, 7.14
-    box("Banco_bau", bx0 + 0.005, bx1, by0, by1, 0.06, 0.42, wood, bevel=0.002)
-    box("Banco_rodape", bx0 + 0.02, bx1 - 0.04, by0 + 0.02, by1 - 0.02, 0, 0.06, M["black"], bevel=0)
-    box("Banco_tampo", bx0 + 0.005, bx1, by0, by1, 0.42, 0.45, wood, bevel=0.003)
-    cushion("Banco_assento", bx0 + 0.02, bx1 - 0.01, by0 + 0.01, by1 - 0.01, 0.45, 0.53, M["linen_acc"], puff=0.35)
-    pillow("Banco_encosto_1", 0.09, by0 + 0.27, 0.74, 0.46, 0.42, 0.14, M["pillow2"], tilt=0, yaw=90)
-    pillow("Banco_encosto_2", 0.09, by1 - 0.27, 0.73, 0.46, 0.40, 0.14, M["linen_white"], tilt=0, yaw=90)
-    tx0, tx1, ty0, ty1 = 0.47, 1.07, 6.24, 7.04
-    box("Mesa_tampo", tx0, tx1, ty0, ty1, 0.72, 0.75, wood, bevel=0.012, segs=4)
-    box("Mesa_coluna", (tx0 + tx1) / 2 - 0.04, (tx0 + tx1) / 2 + 0.04, (ty0 + ty1) / 2 - 0.20, (ty0 + ty1) / 2 + 0.20, 0.03, 0.72, M["metal"], bevel=0.004)
-    box("Mesa_base", (tx0 + tx1) / 2 - 0.20, (tx0 + tx1) / 2 + 0.20, (ty0 + ty1) / 2 - 0.30, (ty0 + ty1) / 2 + 0.30, 0.0, 0.03, M["metal"], bevel=0.004)
-    chair("Cadeira_1", 1.33, 6.60, -95, M)
-    # mesa posta: caneca, livro aberto, vaso com galho
-    cyl("Mesa_caneca", 0.72, 6.50, 0.75, 0.84, 0.04, M["ceramic"])
-    torus("Mesa_caneca_alca", 0.765, 6.50, 0.795, 0.025, 0.006, M["ceramic"], rot=(math.radians(90), 0, 0))
-    box("Mesa_livro_a", 0.78, 0.98, 6.70, 6.84, 0.75, 0.765, M["paper"], bevel=0.002)
-    box("Mesa_livro_b", 0.80, 0.97, 6.84, 6.98, 0.75, 0.763, M["paper"], bevel=0.002)
-    asset("ceramic_vase_04", 0.62, 6.88, 0.75, height=0.22)
-    # pendente sobre a mesa (base a 1,50 m)
-    pend = asset("modern_ceiling_lamp_01", (tx0 + tx1) / 2, (ty0 + ty1) / 2, 1.50, width=0.38, coll="Decor")
-    bpy.context.view_layer.update()
-    pend.location.z = max(1.50, H - pend.dimensions.z)
-    point_light("Luz_pendente", (tx0 + tx1) / 2, (ty0 + ty1) / 2, 1.55, 18, radius=0.08)
-    asset("potted_plant_02", 0.20, 7.38, 0.0, height=0.85)
+    dining(P, M, wood)
 
     # cortina de linho até o teto, recolhida na lateral
     box("Sala_trilho", 0.03, 0.08, 5.22, 7.30, H - 0.03, H - 0.005, M["black"], "Esquadrias", bevel=0.002)
@@ -401,6 +377,109 @@ def sala(P, M, rnd):
     for i, (x, tgt) in enumerate([(0.75, (1.0, 5.20, 1.4)), (1.30, (1.08, 7.55, 1.6)), (1.95, (2.6, 7.3, 0.9)), (2.40, (3.0, 7.4, 0.9))]):
         cyl(f"Spot_corpo_{i}", x, 6.40, H - 0.17, H - 0.04, 0.03, M["black"])
         spot(f"Spot_{i}", x, 6.40, H - 0.18, tgt, 35, size_deg=38, blend=0.8)
+
+
+DINING = "canto"   # canto | bancada | rebativel | rebativel_fechada | centro
+
+
+def stool(name, cx, cy, M, h=0.66):
+    """Banqueta alta de freijó com assento de palhinha e descanso de pés."""
+    for i, (dx, dy) in enumerate([(-1, -1), (1, -1), (1, 1), (-1, 1)]):
+        cyl(f"{name}_perna_{i}", cx + dx * 0.13, cy + dy * 0.13, 0.0, h - 0.03, 0.013, M["wood"], r2=0.016)
+    for z in [0.26]:
+        box(f"{name}_pe_a", cx - 0.14, cx + 0.14, cy - 0.135, cy - 0.12, z, z + 0.02, M["metal"], bevel=0.003)
+        box(f"{name}_pe_b", cx - 0.14, cx + 0.14, cy + 0.12, cy + 0.135, z, z + 0.02, M["metal"], bevel=0.003)
+    cyl(f"{name}_assento", cx, cy, h - 0.035, h, 0.185, M["wood"], bevel=0.006)
+    cyl(f"{name}_palhinha", cx, cy, h, h + 0.004, 0.16, M["palhinha"])
+
+
+def dining(P, M, wood):
+    """Onde se come na sala. 'canto' é o canto alemão original; as outras são as alternativas."""
+    tx, ty = 0.25, 6.62
+    if DINING in ("canto", "centro"):
+        # banco-baú sob a janela
+        bx0, bx1, by0, by1 = 0.0, 0.42, 6.12, 7.14
+        box("Banco_bau", bx0 + 0.005, bx1, by0, by1, 0.06, 0.42, wood, bevel=0.002)
+        box("Banco_rodape", bx0 + 0.02, bx1 - 0.04, by0 + 0.02, by1 - 0.02, 0, 0.06, M["black"], bevel=0)
+        box("Banco_tampo", bx0 + 0.005, bx1, by0, by1, 0.42, 0.45, wood, bevel=0.003)
+        cushion("Banco_assento", bx0 + 0.02, bx1 - 0.01, by0 + 0.01, by1 - 0.01, 0.45, 0.53, M["linen_acc"], puff=0.35)
+        pillow("Banco_encosto_1", 0.09, by0 + 0.27, 0.74, 0.46, 0.42, 0.14, M["pillow2"], tilt=0, yaw=90)
+        pillow("Banco_encosto_2", 0.09, by1 - 0.27, 0.73, 0.46, 0.40, 0.14, M["linen_white"], tilt=0, yaw=90)
+    if DINING == "canto":
+        tx0, tx1, ty0, ty1 = 0.47, 1.07, 6.24, 7.04
+        box("Mesa_tampo", tx0, tx1, ty0, ty1, 0.72, 0.75, wood, bevel=0.012, segs=4)
+        box("Mesa_coluna", (tx0 + tx1) / 2 - 0.04, (tx0 + tx1) / 2 + 0.04, (ty0 + ty1) / 2 - 0.20, (ty0 + ty1) / 2 + 0.20, 0.03, 0.72, M["metal"], bevel=0.004)
+        box("Mesa_base", (tx0 + tx1) / 2 - 0.20, (tx0 + tx1) / 2 + 0.20, (ty0 + ty1) / 2 - 0.30, (ty0 + ty1) / 2 + 0.30, 0.0, 0.03, M["metal"], bevel=0.004)
+        chair("Cadeira_1", 1.33, 6.60, -95, M)
+        cyl("Mesa_caneca", 0.72, 6.50, 0.75, 0.84, 0.04, M["ceramic"])
+        torus("Mesa_caneca_alca", 0.765, 6.50, 0.795, 0.025, 0.006, M["ceramic"], rot=(math.radians(90), 0, 0))
+        box("Mesa_livro_a", 0.78, 0.98, 6.70, 6.84, 0.75, 0.765, M["paper"], bevel=0.002)
+        box("Mesa_livro_b", 0.80, 0.97, 6.84, 6.98, 0.75, 0.763, M["paper"], bevel=0.002)
+        asset("ceramic_vase_04", 0.62, 6.88, 0.75, height=0.22)
+        tx, ty = (tx0 + tx1) / 2, (ty0 + ty1) / 2
+    elif DINING == "bancada":
+        # bancada de refeição de freijó logo abaixo do peitoril (1,00 m), 0,38 × 1,00, com 2 banquetas
+        y0, y1, z = 6.13, 7.13, 0.97
+        box("Bancada_janela", 0.0, 0.38, y0, y1, z - 0.04, z, wood, bevel=0.004)
+        for i, y in enumerate([y0 + 0.10, y1 - 0.10]):
+            box(f"Bancada_mao_francesa_{i}", 0.0, 0.30, y - 0.012, y + 0.012, z - 0.06, z - 0.04, M["metal"], bevel=0.002)
+            box(f"Bancada_mao_francesa_v{i}", 0.0, 0.02, y - 0.012, y + 0.012, z - 0.34, z - 0.04, M["metal"], bevel=0.002)
+        stool("Banqueta_1", 0.36, 6.40, M)
+        stool("Banqueta_2", 0.36, 6.86, M)
+        cyl("Bancada_caneca", 0.16, 6.36, z, z + 0.09, 0.04, M["ceramic"])
+        box("Bancada_livro", 0.08, 0.28, 6.70, 6.84, z, z + 0.015, M["paper"], bevel=0.002)
+        asset("ceramic_vase_04", 0.14, 7.02, z, height=0.22)
+        coffee_round(M, wood)
+    elif DINING in ("rebativel", "rebativel_fechada"):
+        # painel de freijó sob a janela com tampo rebatível 0,80 × 0,50 (fechado ocupa 6 cm)
+        y0, y1 = 6.22, 7.06
+        box("Rebativel_painel", 0.0, 0.025, y0 - 0.04, y1 + 0.04, 0.0, 0.96, wood, bevel=0.002)
+        box("Rebativel_rodape", 0.0, 0.02, y0 - 0.04, y1 + 0.04, 0.0, 0.06, M["black"], bevel=0)
+        if DINING == "rebativel":
+            box("Rebativel_tampo", 0.025, 0.525, y0, y1, 0.72, 0.75, wood, bevel=0.006, segs=3)
+            box("Rebativel_dobradica", 0.025, 0.035, y0 + 0.02, y1 - 0.02, 0.72, 0.735, M["metal"], bevel=0)
+            for i, y in enumerate([y0 + 0.06, y1 - 0.06]):
+                # mão-francesa articulada que sai do painel
+                box(f"Rebativel_braco_{i}", 0.025, 0.40, y - 0.01, y + 0.01, 0.70, 0.72, M["metal"], bevel=0.002)
+                box(f"Rebativel_braco_d{i}", 0.025, 0.05, y - 0.01, y + 0.01, 0.40, 0.72, M["metal"], bevel=0.002)
+            chair("Cadeira_1", 0.78, 6.42, -90, M)
+            chair("Cadeira_2", 0.78, 6.88, -90, M)
+            cyl("Mesa_caneca", 0.30, 6.40, 0.75, 0.84, 0.04, M["ceramic"])
+            box("Mesa_livro_a", 0.15, 0.35, 6.72, 6.86, 0.75, 0.765, M["paper"], bevel=0.002)
+            asset("ceramic_vase_04", 0.12, 6.98, 0.75, height=0.22)
+        else:
+            box("Rebativel_tampo", 0.025, 0.055, y0, y1, 0.22, 0.72, wood, bevel=0.004)
+            box("Rebativel_puxador", 0.055, 0.065, (y0 + y1) / 2 - 0.08, (y0 + y1) / 2 + 0.08, 0.66, 0.68, M["metal"], bevel=0.002)
+            coffee_round(M, wood)
+    elif DINING == "centro":
+        # mesa de centro de tampo elevatório, aberta na altura de refeição (0,62)
+        cx0, cx1, cy0, cy1 = 0.60, 1.50, 6.30, 6.80
+        box("Centro_caixa", cx0, cx1, cy0, cy1, 0.06, 0.40, wood, bevel=0.004)
+        box("Centro_rodape", cx0 + 0.03, cx1 - 0.03, cy0 + 0.03, cy1 - 0.03, 0.0, 0.06, M["black"], bevel=0)
+        box("Centro_tampo", cx0 + 0.04, cx1 - 0.04, cy0 - 0.12, cy1 - 0.20, 0.60, 0.63, wood, bevel=0.005)
+        for i, x in enumerate([cx0 + 0.10, cx1 - 0.10]):
+            box(f"Centro_tesoura_a{i}", x - 0.008, x + 0.008, cy0 + 0.0, cy0 + 0.30, 0.40, 0.60, M["metal"], bevel=0.002)
+        cyl("Centro_prato", 0.92, 6.30, 0.63, 0.645, 0.12, M["ceramic"])
+        cyl("Centro_prato2", 1.22, 6.30, 0.63, 0.645, 0.12, M["ceramic"])
+        cyl("Mesa_caneca", 0.72, 6.44, 0.63, 0.72, 0.04, M["ceramic"])
+        # banco vira canto de leitura: livros e manta
+        box("Banco_livros", 0.10, 0.30, 6.95, 7.10, 0.53, 0.60, M["paper"], bevel=0.002)
+        soft("Banco_manta", 0.06, 0.40, 6.30, 6.62, 0.53, 0.56, M["linen_white"], round_=0.008, wrinkle=0.01)
+    # pendente: sobre a mesa no canto alemão, sobre a bancada/tampo nas outras
+    pend = asset("modern_ceiling_lamp_01", tx, ty, 1.50, width=0.38, coll="Decor")
+    bpy.context.view_layer.update()
+    pend.location.z = max(1.50, H - pend.dimensions.z) if DINING != "bancada" else max(1.60, H - pend.dimensions.z)
+    point_light("Luz_pendente", tx, ty, 1.55, 18, radius=0.08)
+    asset("potted_plant_02", 0.20, 7.38, 0.0, height=0.85)
+
+
+def coffee_round(M, wood):
+    """Mesa de centro redonda baixa, Ø 0,50."""
+    cyl("Centro_tampo", 1.10, 6.48, 0.36, 0.39, 0.25, wood, bevel=0.006)
+    cyl("Centro_base", 1.10, 6.48, 0.0, 0.36, 0.05, M["metal"])
+    cyl("Centro_pe", 1.10, 6.48, 0.0, 0.02, 0.16, M["metal"], bevel=0.004)
+    asset("ceramic_vase_01", 1.02, 6.44, 0.39, height=0.16)
+    box("Centro_livro", 1.10, 1.30, 6.42, 6.58, 0.39, 0.42, M["paper"], bevel=0.002)
 
 
 def chair(name, cx, cy, yaw_deg, M):
@@ -729,7 +808,9 @@ if __name__ == "__main__":
     ap.add_argument("--samples", type=int, default=256)
     ap.add_argument("--export", default="")
     ap.add_argument("--out", default="renders2")
+    ap.add_argument("--dining", default="canto")
     args = ap.parse_args(sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:])
+    DINING = args.dining
     views = list(VIEWS) if args.views == "all" else [v for v in args.views.split(",") if v]
     for v in views:
         P = build(args.palette)
