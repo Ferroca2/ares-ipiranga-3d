@@ -93,7 +93,13 @@ td.a { text-align: right; font-family: var(--mono); font-size: 13px; white-space
 .viewer { position: relative; background: var(--sheet); border: 1px solid var(--rule); aspect-ratio: 16 / 9; max-width: 100%; overflow: hidden; }
 .viewer canvas { display: block; width: 100%; height: 100%; touch-action: none; }
 .viewer .hint { position: absolute; left: 12px; bottom: 10px; }
-.viewer .status { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); text-align: center; padding: 16px; }
+.viewer .status { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); text-align: center; padding: 16px; pointer-events: none; }
+.viewer .status[hidden] { display: none; }
+.viewer .walk { position: absolute; right: 12px; bottom: 10px; left: auto; text-align: right; }
+.viewer .walk[hidden] { display: none; }
+.viewer .walk:not([hidden]) ~ .hint:not(.walk), .viewer .hint:not(.walk):has(~ .walk:not([hidden])) { display: none; }
+.rooms { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+.rooms .label { margin-right: 4px; }
 .tools { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
 .tool { border: 1px solid var(--rule); background: var(--chip); color: var(--ink); border-radius: 6px; padding: 7px 12px; font: 500 13px/1 var(--body); cursor: pointer; }
 .tool[aria-pressed="true"] { border-color: var(--ink); }
@@ -247,13 +253,22 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
   </section>
 
   <section class="block" id="modelo">
-    <header><h2>Modelo 3D</h2><span class="cota">arraste para girar · role para aproximar</span></header>
+    <header><h2>Modelo 3D</h2><span class="cota">arraste para girar · role para aproximar · entre nos cômodos</span></header>
     <div class="tools">
       <button class="tool" id="ceiling" aria-pressed="false" type="button">Mostrar teto</button>
       <button class="tool" id="reset" type="button">Vista inicial</button>
       <button class="tool" id="top" type="button">Vista de cima</button>
     </div>
-    <div class="viewer" id="viewer"><div class="status" id="status">Carregando modelo…</div><span class="hint label">cores sólidas · escala 1:1 em metros</span></div>
+    <div class="rooms" id="rooms">
+      <span class="label">Entrar no cômodo</span>
+      <button class="tool" type="button" data-room="sala">Sala</button>
+      <button class="tool" type="button" data-room="cozinha">Cozinha</button>
+      <button class="tool" type="button" data-room="corredor">Corredor</button>
+      <button class="tool" type="button" data-room="dorm1">Dormitório 1</button>
+      <button class="tool" type="button" data-room="dorm2">Dormitório 2</button>
+      <button class="tool" type="button" data-room="banho">Banho</button>
+    </div>
+    <div class="viewer" id="viewer"><div class="status" id="status">Carregando modelo…</div><span class="hint label">cores sólidas · escala 1:1 em metros</span><span class="hint label walk" id="walkhint" hidden>arraste para olhar em volta · W A S D ou setas para andar · Vista inicial para sair</span></div>
   </section>
 
   <section class="block" id="referencias">
@@ -275,14 +290,14 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
   </section>
 
   <section class="block" id="arquivos">
-    <header><h2>Arquivos</h2><span class="cota">~/ares-ipiranga-3d</span></header>
+    <header><h2>Arquivos</h2><span class="cota">downloads</span></header>
     <div class="files">
-      <div><b>Caderno A3 (PDF)</b><br><code>Ares_Ipiranga_Atelie_Projeto3D.pdf</code></div>
-      <div><b>Blender, com materiais completos</b><br><code>modelo2/&lt;paleta&gt;/*.blend</code></div>
-      <div><b>FBX, OBJ, DAE e GLB</b><br><code>modelo2/terra/</code> · SketchUp, 3ds Max, Revit, Rhino</div>
-      <div><b>Renders 1920 px</b><br><code>renders2/&lt;paleta&gt;/*.jpg</code></div>
-      <div><b>Pesquisa de projeto</b><br><code>research/design_brief.md</code></div>
-      <div><b>Scripts paramétricos</b><br><code>build2.py · lib3d.py</code></div>
+      <div><b>Caderno A3 (PDF)</b><br><a href="Ares_Ipiranga_Atelie_Projeto3D.pdf" download>Ares_Ipiranga_Atelie_Projeto3D.pdf</a></div>
+      <div><b>Blender, com materiais completos</b><br><a href="https://github.com/Ferroca2/ares-ipiranga-3d/releases/download/v2/ares_ipiranga_blender_4paletas.zip">.blend · 4 paletas (zip)</a></div>
+      <div><b>FBX, OBJ, DAE e GLB</b><br><a href="https://github.com/Ferroca2/ares-ipiranga-3d/releases/download/v2/ares_ipiranga_terra_fbx_obj_dae_glb.zip">paleta Terra (zip)</a> · SketchUp, 3ds Max, Revit, Rhino</div>
+      <div><b>GLB das 4 paletas</b><br><a href="https://github.com/Ferroca2/ares-ipiranga-3d/releases/download/v2/ares_ipiranga_glb_4paletas.zip">.glb (zip)</a></div>
+      <div><b>Pesquisa de projeto</b><br><a href="https://github.com/Ferroca2/ares-ipiranga-3d/blob/main/research/design_brief.md">research/design_brief.md</a></div>
+      <div><b>Scripts paramétricos</b><br><a href="https://github.com/Ferroca2/ares-ipiranga-3d">github.com/Ferroca2/ares-ipiranga-3d</a></div>
     </div>
   </section>
 
