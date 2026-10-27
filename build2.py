@@ -50,6 +50,12 @@ PALETTES = {
         bath_floor="#D8CDBE", box_tile="#D9A68F", backsplash="#F1E9D8", rug="#E2D2B2", duvet="#F2EBDD",
         pillow2="#D9A68F", art=["#C99A2E", "#2F4A3A", "#D9A68F", "#5A3E2B"],
     ),
+    "ebano": dict(
+        label="Madeira Preta", wall="#F2EFE9", wall_d2="#D8D1C5", wood="#2A2623", accent="#9C6B43",
+        second="#8C8F7E", dark="#141414", metal="brass", sofa="#E2DCD1", floor="#D6C3A5",
+        bath_floor="#CBC7C0", box_tile="#ECE8E1", backsplash="#EAE5DC", rug="#C9BBA5", duvet="#F2EFEA",
+        pillow2="#8C8F7E", art=["#9C6B43", "#2A2623", "#C9B79A", "#8C8F7E"],
+    ),
 }
 
 

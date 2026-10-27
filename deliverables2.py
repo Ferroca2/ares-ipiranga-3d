@@ -12,7 +12,7 @@ from reportlab.pdfgen import canvas
 ROOT = os.path.dirname(os.path.abspath(__file__))
 REN = os.path.join(ROOT, "renders2")
 SITE = os.path.join(ROOT, "site")
-ORDER = ["terra", "mata", "moderno", "ipe"]
+ORDER = ["terra", "mata", "moderno", "ipe", "ebano"]
 
 # paletas (espelha build2.PALETTES sem importar bpy)
 PAL = {
@@ -24,6 +24,8 @@ PAL = {
                 "Referência aos azulejos da arquitetura moderna brasileira: cobalto no backsplash e no barrado."),
     "ipe": ("Ipê", ["#EFE6D4", "#8A5E3E", "#C99A2E", "#D9A68F", "#2F4A3A"],
             "A mais ousada: ocre nas lacas, argila no quarto 2 e sofá verde-garrafa."),
+    "ebano": ("Madeira Preta", ["#F2EFE9", "#2A2623", "#9C6B43", "#8C8F7E", "#D8D1C5"],
+              "Toda a marcenaria em madeira ebanizada (o veio aparece sob o preto), com caramelo, sálvia e latão. Paredes e piso claros seguram o contraste."),
 }
 
 ROOMS = [
@@ -184,8 +186,8 @@ def pdf():
     c.showPage()
 
     # paletas
-    header("Quatro paletas", "Mesma marcenaria e layout; muda a cor-assinatura, a madeira e os têxteis")
-    cw = (W - 2 * M) / 4
+    header("Cinco paletas", "Mesma marcenaria e layout; muda a cor-assinatura, a madeira e os têxteis")
+    cw = (W - 2 * M) / len(ORDER)
     for i, p in enumerate(ORDER):
         lab, sw, why = PAL[p]
         x = M + i * cw
@@ -196,10 +198,10 @@ def pdf():
         for j, hx in enumerate(sw):
             c.setFillColorRGB(*hexrgb(hx))
             c.setStrokeColorRGB(0.8, 0.8, 0.8)
-            c.rect(x + 8 + j * 44, Hh * 0.33, 38, 26, fill=1, stroke=1)
+            c.rect(x + 8 + j * 40, Hh * 0.33, 34, 26, fill=1, stroke=1)
             c.setFillColorRGB(*grey)
-            c.setFont("Helvetica", 7.5)
-            c.drawString(x + 8 + j * 44, Hh * 0.33 - 11, hx.upper())
+            c.setFont("Helvetica", 6.5)
+            c.drawString(x + 8 + j * 40, Hh * 0.33 - 11, hx.upper())
         para(why, x + 8, Hh * 0.27, cw - 24, 10.5, 14)
     c.showPage()
 
@@ -212,14 +214,48 @@ def pdf():
     # comparação por cômodo
     for v, t, d in ROOMS:
         header(t + " · opções de cor", d)
-        gw, gh = (W - 2 * M - 16) / 2, (Hh - 2 * M - 80) / 2
+        gw, gh = (W - 2 * M - 32) / 3, (Hh - 2 * M - 80) / 2
         for i, p in enumerate(ORDER):
-            gx = M + (i % 2) * (gw + 16)
-            gy = M + (1 - i // 2) * (gh + 10)
+            gx = M + (i % 3) * (gw + 16)
+            gy = M + (1 - i // 3) * (gh + 10)
             x, y, dw, dh = img(os.path.join(REN, p, f"{v}.jpg"), gx, gy + 16, gw, gh - 16)
             c.setFillColorRGB(*ink)
             c.setFont("Helvetica-Bold", 11)
             c.drawString(x, y - 13, PAL[p][0])
+        c.showPage()
+
+    # catálogo de móveis e eletrodomésticos
+    cat = json.load(open(os.path.join(ROOT, "catalog.json")))
+    cols, rows = 4, 3
+    cw, ch = (W - 2 * M) / cols, (Hh - 2 * M - 70) / rows
+    cmf = lambda v: f"{round(v * 100):d}"
+    for page in range(0, len(cat), cols * rows):
+        header("Móveis e eletrodomésticos", "Medidas tiradas do modelo, em centímetros: largura (ao longo da parede) x profundidade x altura")
+        for k, it in enumerate(cat[page:page + cols * rows]):
+            x = M + (k % cols) * cw
+            top = Hh - M - 70 - (k // cols) * ch
+            c.setFillColorRGB(0.937, 0.925, 0.902)
+            c.rect(x + 4, top - ch * 0.62, cw - 8, ch * 0.62 - 6, fill=1, stroke=0)
+            png = os.path.join(ROOT, "catalog_png", f"{it['id']}.png")
+            if os.path.exists(png):
+                ir = ImageReader(png)
+                iw, ih = ir.getSize()
+                r = min((cw - 16) / iw, (ch * 0.62 - 14) / ih)
+                c.drawImage(ir, x + 4 + (cw - 8 - iw * r) / 2, top - ch * 0.62 + 4, iw * r, ih * r, mask="auto")
+            ty = top - ch * 0.62 - 16
+            c.setFillColorRGB(*grey)
+            c.setFont("Helvetica", 7.5)
+            c.drawString(x + 6, ty, f"{it['room']} · {it['type']}".upper())
+            c.setFillColorRGB(*ink)
+            c.setFont("Helvetica-Bold", 11)
+            c.drawString(x + 6, ty - 14, it["name"])
+            c.setFont("Courier", 10)
+            c.setFillColorRGB(0.17, 0.33, 0.78)
+            c.drawString(x + 6, ty - 29, f"{cmf(it['w'])} x {cmf(it['d'])} x {cmf(it['h'])} cm")
+            c.setFillColorRGB(*grey)
+            c.setFont("Helvetica", 8.5)
+            extra = f"Instalação a {cmf(it['z0'])} cm do piso. " if it["z0"] > 0.05 else ""
+            para(extra + it["note"], x + 6, ty - 43, cw - 16, 8.5, 11)
         c.showPage()
     c.save()
     return path
@@ -240,11 +276,18 @@ def glb_to_json(src, dst):
     json.dump(js, open(dst, "w"), separators=(",", ":"))
 
 
+def ready(p):
+    return all(os.path.exists(os.path.join(REN, p, f"{v}.jpg")) for v in ["isometrica", "planta"] + [r[0] for r in ROOMS]
+               if v != "planta_cotada")
+
+
 def site():
     img_dir = os.path.join(SITE, "img2")
     os.makedirs(img_dir, exist_ok=True)
     os.makedirs(os.path.join(SITE, "models2"), exist_ok=True)
-    for p in ORDER:
+    os.makedirs(os.path.join(SITE, "items"), exist_ok=True)
+    done = [p for p in ORDER if ready(p)]
+    for p in done:
         for v in ["planta_cotada", "isometrica"] + [r[0] for r in ROOMS]:
             im = Image.open(os.path.join(REN, p, f"{v}.jpg"))
             im.thumbnail((1600, 1600))
@@ -252,11 +295,29 @@ def site():
         g = os.path.join(ROOT, "modelo2", p, f"ares_ipiranga_final01_{p}_web.glb")
         if os.path.exists(g):
             glb_to_json(g, os.path.join(SITE, "models2", f"{p}.json"))
-    meta = {p: dict(label=PAL[p][0], swatches=PAL[p][1], why=PAL[p][2]) for p in ORDER}
+    catalog_site()
+    meta = {p: dict(label=PAL[p][0], swatches=PAL[p][1], why=PAL[p][2]) for p in done}
     json.dump(meta, open(os.path.join(SITE, "palettes2.json"), "w"), ensure_ascii=False)
 
 
+def catalog_site():
+    for it in json.load(open(os.path.join(ROOT, "catalog.json"))):
+        g = os.path.join(ROOT, "web_items", f"{it['id']}.glb")
+        if os.path.exists(g):
+            glb_to_json(g, os.path.join(SITE, "items", f"{it['id']}.json"))
+        png = os.path.join(ROOT, "catalog_png", f"{it['id']}.png")
+        if os.path.exists(png):
+            im = Image.open(png)
+            im.thumbnail((640, 640))
+            im.save(os.path.join(SITE, "img2", f"cat_{it['id']}.webp"), quality=82, method=6)
+
+
 if __name__ == "__main__":
+    import sys
+    if "--site" in sys.argv:
+        site()
+        print("site ok")
+        sys.exit()
     for p in ORDER:
         labeled_plan(p)
     print("PDF", pdf())

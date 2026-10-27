@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>Ateliê Ipiranga</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -92,11 +93,16 @@ td.a { text-align: right; font-family: var(--mono); font-size: 13px; white-space
 
 .viewer { position: relative; background: var(--sheet); border: 1px solid var(--rule); aspect-ratio: 16 / 9; max-width: 100%; overflow: hidden; }
 .viewer canvas { display: block; width: 100%; height: 100%; touch-action: none; }
-.viewer .hint { position: absolute; left: 12px; bottom: 10px; }
+.viewer .hint { position: absolute; left: 12px; bottom: 10px; pointer-events: none; }
 .viewer .status { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); text-align: center; padding: 16px; pointer-events: none; }
 .viewer .status[hidden] { display: none; }
 .viewer .walk { position: absolute; right: 12px; bottom: 10px; left: auto; text-align: right; }
 .viewer .walk[hidden] { display: none; }
+.navchips { position: absolute; left: 12px; top: 12px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; max-width: calc(100% - 24px); }
+.navchips[hidden] { display: none; }
+.navchips .label { color: #fff; background: rgba(20,21,23,.7); padding: 6px 8px; border-radius: 4px; }
+.navchips button { border: 0; border-radius: 999px; background: rgba(20,21,23,.78); color: #fff; font: 600 13px/1 var(--body); padding: 8px 12px; cursor: pointer; }
+.navchips button:hover, .navchips button:focus-visible { background: #2B55C8; outline: none; }
 .viewer .walk:not([hidden]) ~ .hint:not(.walk), .viewer .hint:not(.walk):has(~ .walk:not([hidden])) { display: none; }
 .rooms { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
 .rooms .label { margin-right: 4px; }
@@ -112,10 +118,35 @@ td.a { text-align: right; font-family: var(--mono); font-size: 13px; white-space
 .files { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0 32px; }
 .files div { border-top: 1px solid var(--rule); padding: 12px 0; min-width: 0; }
 .files code { font-family: var(--mono); font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
+#catalogo .tools { margin-bottom: 20px; }
+.catgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 28px 24px; }
+.item { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; border-top: 1px solid var(--rule); padding-top: 14px; min-width: 0; }
+.itemimg { position: relative; border: 0; padding: 0; background: #EFECE6; cursor: pointer; display: block; aspect-ratio: 960 / 760; overflow: hidden; }
+.itemimg img { width: 100%; height: 100%; object-fit: contain; display: block; transition: transform .25s; }
+.itemimg:hover img { transform: scale(1.04); }
+.itemimg .label { position: absolute; left: 8px; bottom: 6px; color: #2B55C8; }
+.itemimg:focus-visible { outline: 2px solid var(--pen); outline-offset: 2px; }
+.itemtxt { min-width: 0; }
+.itemtxt h3 { font-size: 16px; font-weight: 650; font-stretch: 100%; margin: 4px 0 6px; }
+.itemtxt p, #itemdims p { color: var(--muted); font-size: 13.5px; margin: 6px 0 0; }
+table.dims { margin-top: 0; }
+table.dims td { padding: 3px 0; font-size: 13px; border-bottom: 1px dashed var(--rule); }
+table.dims td:first-child { color: var(--muted); }
+table.dims td:last-child { text-align: right; font-family: var(--mono); font-size: 12.5px; white-space: nowrap; }
+dialog#itemdlg { width: min(1100px, calc(100vw - 32px)); max-height: calc(100vh - 32px); border: 1px solid var(--rule); background: var(--sheet); color: var(--ink); padding: 0; }
+dialog#itemdlg::backdrop { background: rgba(10, 11, 12, .55); }
+.dlg { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 3fr); }
+#itemview { position: relative; aspect-ratio: 4 / 3; background: #EFECE6; }
+#itemview canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+#itemstatus { position: absolute; inset: 0; display: grid; place-items: center; color: #5F6166; pointer-events: none; }
+#itemstatus[hidden] { display: none; }
+.dlgside { padding: 20px; display: grid; align-content: start; gap: 10px; }
+.dlgside h3 { font-size: 22px; font-weight: 700; }
+#itemclose { justify-self: start; margin-top: 8px; }
 footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--rule); }
 
 @media (max-width: 860px) {
-  .hero-head, .plan, .room, .room.tall { grid-template-columns: minmax(0, 1fr); }
+  .hero-head, .plan, .room, .room.tall, .dlg { grid-template-columns: minmax(0, 1fr); }
   .bar .name { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
@@ -132,7 +163,7 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
       <h1>Ateliê Ipiranga <span>a casa como moldura</span></h1>
       <div style="display:grid;gap:14px">
         <p>Projeto de interiores para o apartamento final 01 do Ares Ipiranga, da Brio. Uma marcenaria contínua de freijó emoldura a rotina e a arte, uma cor-assinatura aparece em uma superfície de cada cômodo, e a luz quente vem toda sobreposta, porque as paredes são estruturais e não podem ser cortadas.</p>
-        <div class="facts"><div><b>31,22</b><span class="label">m² privativos</span></div><div><b>2,50</b><span class="label">m pé-direito</span></div><div><b>4</b><span class="label">paletas</span></div><div><b>8</b><span class="label">vistas por paleta</span></div></div>
+        <div class="facts"><div><b>31,22</b><span class="label">m² privativos</span></div><div><b>2,50</b><span class="label">m pé-direito</span></div><div><b>5</b><span class="label">paletas</span></div><div><b>8</b><span class="label">vistas por paleta</span></div></div>
       </div>
     </div>
     <img data-view="sala" alt="Sala com sofá de linho, canto alemão sob a janela, cozinha de freijó e arte sobre o sofá" width="1600" height="1067">
@@ -268,8 +299,28 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
       <button class="tool" type="button" data-room="dorm2">Dormitório 2</button>
       <button class="tool" type="button" data-room="banho">Banho</button>
     </div>
-    <div class="viewer" id="viewer"><div class="status" id="status">Carregando modelo…</div><span class="hint label">cores sólidas · escala 1:1 em metros</span><span class="hint label walk" id="walkhint" hidden>arraste para olhar em volta · W A S D ou setas para andar · Vista inicial para sair</span></div>
+    <div class="viewer" id="viewer"><div class="status" id="status">Carregando modelo…</div><span class="hint label">cores sólidas · escala 1:1 em metros</span><div class="navchips" id="navchips" hidden></div><span class="hint label walk" id="walkhint" hidden>clique nas setas do piso para ir a outro cômodo · arraste para olhar · W A S D para andar</span></div>
   </section>
+
+  <section class="block" id="catalogo">
+    <header><h2>Móveis e eletrodomésticos</h2><span class="cota">medidas em centímetros</span></header>
+    <p class="lead">Cada peça do projeto com largura, profundidade e altura tiradas do próprio modelo. Largura é a medida ao longo da parede onde a peça encosta. Clique na imagem para girar a peça em 3D com as cotas. Peças mostradas na paleta Terra Paulista.</p>
+    <div class="tools" id="catfilter" role="group" aria-label="Filtrar por cômodo"></div>
+    <div class="catgrid" id="catgrid"></div>
+  </section>
+
+  <dialog id="itemdlg" aria-labelledby="itemname">
+    <div class="dlg">
+      <div id="itemview"><div id="itemstatus">Carregando peça…</div></div>
+      <div class="dlgside">
+        <span class="label" id="itemmeta"></span>
+        <h3 id="itemname"></h3>
+        <div id="itemdims"></div>
+        <span class="label">arraste para girar · role para aproximar</span>
+        <button class="tool" id="itemclose" type="button">Fechar</button>
+      </div>
+    </div>
+  </dialog>
 
   <section class="block" id="referencias">
     <header><h2>Referências</h2><span class="cota">projetos e pesquisa</span></header>
@@ -309,7 +360,7 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
 <script>
 const PALETTES = __PALETTES__;
-const ORDER = ["terra", "mata", "moderno", "ipe"];
+const ORDER = Object.keys(PALETTES);
 let current = "terra";
 try { const s = localStorage.getItem("atelie-palette"); if (ORDER.includes(s)) current = s; } catch (e) {}
 
@@ -347,4 +398,5 @@ function setPalette(p) {
   loadModel(p);
 }
 __VIEWER__
+__CATALOGJS__
 </script>

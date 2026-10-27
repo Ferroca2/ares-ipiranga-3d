@@ -15,3 +15,8 @@ site/index.html
 site/img2/
 site/models2/
 dist/
+web_tex/
+web_items/
+site/items/
+catalog_png/
+*.log

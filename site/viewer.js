@@ -6,11 +6,25 @@ const keys = new Set(), clock = new THREE.Clock(), walkhint = document.getElemen
 const ROOMS = {
   sala:     [[3.75, 1.55, 6.60], [0.40, 1.20, 5.95]],
   cozinha:  [[0.70, 1.55, 5.85], [3.70, 1.20, 7.25]],
-  corredor: [[2.50, 1.55, 6.75], [2.50, 1.30, 2.60]],
+  corredor: [[2.52, 1.55, 5.45], [2.52, 1.30, 2.60]],
   dorm1:    [[2.25, 1.55, 2.30], [0.55, 0.90, 0.30]],
   dorm2:    [[1.85, 1.55, 4.35], [0.25, 1.00, 3.05]],
   banho:    [[3.10, 1.55, 4.85], [3.95, 1.10, 3.30]],
 };
+// setas no piso estilo street view: [destino, posição da seta (x, y da planta), passagem pela porta]
+const NAV = {
+  sala:     [["cozinha", [1.90, 6.40]], ["corredor", [2.55, 5.55], [[2.55, 5.90]]]],
+  cozinha:  [["sala", [2.60, 6.50]], ["corredor", [2.50, 5.50], [[2.50, 5.90]]]],
+  corredor: [["dorm1", [2.55, 3.70], [[2.52, 3.40]]], ["dorm2", [2.25, 4.15], [[1.98, 4.15]]],
+             ["banho", [2.72, 4.50], [[2.70, 4.66], [3.05, 4.66]]], ["sala", [3.05, 6.15], [[2.55, 5.90]]],
+             ["cozinha", [2.00, 6.15], [[2.50, 5.90]]]],
+  dorm1:    [["corredor", [2.52, 3.25], [[2.52, 3.62]]]],
+  dorm2:    [["corredor", [2.32, 4.08], [[2.09, 4.08]]]],
+  banho:    [["corredor", [2.62, 4.66], [[2.95, 4.66]]]],
+};
+const ROOM_LABEL = { sala: "Sala", cozinha: "Cozinha", corredor: "Corredor", dorm1: "Dormitório 1", dorm2: "Dormitório 2", banho: "Banho" };
+let room = null, arrows = null;
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
 const cache = {};
 const CENTER = new THREE.Vector3(2.1, 0.8, 3.8);
 function initViewer() {
@@ -18,19 +32,36 @@ function initViewer() {
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.1;
+  renderer.toneMappingExposure = 1.0;
   box.prepend(renderer.domElement);
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(38, 16 / 9, 0.05, 200);
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8580, 0.9));
-  const sun = new THREE.DirectionalLight(0xfff3e6, 0.9); sun.position.set(-6, 10, 4); scene.add(sun);
-  const fill = new THREE.DirectionalLight(0xdfe8ff, 0.35); fill.position.set(8, 6, 10); scene.add(fill);
+  scene.add(new THREE.HemisphereLight(0xfffaf2, 0x6f675e, 0.62));
+  const sun = new THREE.DirectionalLight(0xfff1e0, 0.85); sun.position.set(-6, 10, 4); scene.add(sun);
+  const fill = new THREE.DirectionalLight(0xdfe8ff, 0.28); fill.position.set(8, 6, 10); scene.add(fill);
   controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true; controls.maxPolarAngle = Math.PI * 0.49;
   controls.minDistance = 1.5; controls.maxDistance = 25;
   camera.position.set(8.5, 9, 12.5); controls.target.copy(CENTER); controls.update();
   new ResizeObserver(resize).observe(box); resize();
   box.tabIndex = 0;
+  let down = null;
+  const hit = e => {
+    if (!arrows) return null;
+    const r = renderer.domElement.getBoundingClientRect();
+    ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(ndc, camera);
+    const h = ray.intersectObjects(arrows.children, true)[0];
+    if (!h) return null;
+    let o = h.object; while (o && !o.userData.to) o = o.parent;
+    return o;
+  };
+  renderer.domElement.addEventListener("pointerdown", e => { down = [e.clientX, e.clientY]; });
+  renderer.domElement.addEventListener("pointerup", e => {
+    if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 6) return;
+    const o = hit(e); if (o) goVia(o.userData.to, o.userData.via);
+  });
+  renderer.domElement.addEventListener("pointermove", e => { renderer.domElement.style.cursor = hit(e) ? "pointer" : ""; });
   addEventListener("keydown", e => {
     if (!walking || !(box.matches(":hover") || document.activeElement === box)) return;
     const k = e.key.toLowerCase();
@@ -42,10 +73,9 @@ function initViewer() {
     requestAnimationFrame(loop);
     const dt = Math.min(clock.getDelta(), 0.1);
     if (fly) {
-      fly.t = Math.min(1, fly.t + dt / 1.1);
-      const k = fly.t < 0.5 ? 2 * fly.t * fly.t : 1 - Math.pow(-2 * fly.t + 2, 2) / 2;
-      camera.position.lerpVectors(fly.p0, fly.p1, k); controls.target.lerpVectors(fly.t0, fly.t1, k);
-      if (fly.t === 1) fly = null;
+      fly.t = Math.min(1, fly.t + dt / fly.dur);
+      fly.at(fly.t < 0.5 ? 2 * fly.t * fly.t : 1 - Math.pow(-2 * fly.t + 2, 2) / 2);
+      if (fly.t === 1) { fly = null; if (walking) showArrows(); }
     } else if (walking && keys.size) walk(dt);
     controls.update(); renderer.render(scene, camera);
   })();
@@ -55,11 +85,90 @@ function resize() {
   renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
 }
 function flyTo(pos, target) {
-  fly = { t: 0, p0: camera.position.clone(), t0: controls.target.clone(), p1: pos, t1: target };
+  const p0 = camera.position.clone(), t0 = controls.target.clone();
+  fly = { t: 0, dur: 1.1, at: k => { camera.position.lerpVectors(p0, pos, k); controls.target.lerpVectors(t0, target, k); } };
+}
+// percorre a poligonal (passando pelas portas) virando a cabeça aos poucos para a direção final
+function flyPath(pts, dirEnd) {
+  const d0 = controls.target.clone().sub(camera.position).normalize();
+  const seg = pts.slice(1).map((q, i) => q.distanceTo(pts[i])), len = seg.reduce((a, b) => a + b, 0) || 1;
+  fly = { t: 0, dur: Math.min(2.6, Math.max(0.9, len / 1.5)), at: k => {
+    let d = k * len, i = 0;
+    while (i < seg.length - 1 && d > seg[i]) d -= seg[i++];
+    const p = pts[i].clone().lerp(pts[i + 1], seg[i] ? Math.min(1, d / seg[i]) : 1);
+    camera.position.copy(p);
+    controls.target.copy(p).addScaledVector(d0.clone().lerp(dirEnd, k).normalize(), 0.01);
+  } };
+}
+function label(text) {
+  const c = document.createElement("canvas"), g = c.getContext("2d");
+  c.width = 512; c.height = 128;
+  g.font = "600 52px 'Instrument Sans', Arial, sans-serif";
+  const w = Math.min(500, g.measureText(text).width + 64);
+  g.fillStyle = "rgba(20,21,23,.78)"; g.beginPath(); g.roundRect((512 - w) / 2, 22, w, 84, 42); g.fill();
+  g.fillStyle = "#fff"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(text, 256, 66);
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false, transparent: true }));
+  sp.scale.set(0.62, 0.155, 1); sp.renderOrder = 11;
+  return sp;
+}
+function arrowMesh() {
+  const g = new THREE.Group();
+  const disc = new THREE.Mesh(new THREE.CircleGeometry(0.2, 40), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9, depthTest: false }));
+  const sh = new THREE.Shape();
+  sh.moveTo(0, 0.12); sh.lineTo(0.11, -0.02); sh.lineTo(0.06, -0.02); sh.lineTo(0, 0.05); sh.lineTo(-0.06, -0.02); sh.lineTo(-0.11, -0.02); sh.closePath();
+  const chev = new THREE.Mesh(new THREE.ShapeGeometry(sh), new THREE.MeshBasicMaterial({ color: 0x2b55c8, depthTest: false }));
+  chev.position.z = 0.001; disc.renderOrder = 10; chev.renderOrder = 11;
+  const flat = new THREE.Group(); flat.add(disc, chev); flat.rotation.x = -Math.PI / 2;
+  g.add(flat);
+  return g;
+}
+function showArrows() {
+  hideArrows();
+  if (!NAV[room]) return;
+  arrows = new THREE.Group();
+  const eye = camera.position;
+  NAV[room].forEach(([to, at, via]) => {
+    const a = arrowMesh(), pos = new THREE.Vector3(at[0], 0.03, at[1]);
+    a.position.copy(pos);
+    // a ponta aponta da posição atual para a seta e segue até a porta
+    const aim = via ? new THREE.Vector3(via[0][0], 0, via[0][1]) : new THREE.Vector3(ROOMS[to][0][0], 0, ROOMS[to][0][2]);
+    const dir = aim.sub(new THREE.Vector3(pos.x, 0, pos.z));
+    if (dir.lengthSq() < 1e-4) dir.set(pos.x - eye.x, 0, pos.z - eye.z);
+    a.rotation.y = Math.atan2(-dir.x, -dir.z);
+    const tag = label(ROOM_LABEL[to]); tag.position.set(at[0], 0.36, at[1]);
+    a.userData = tag.userData = { to, via };
+    arrows.add(a, tag);
+  });
+  scene.add(arrows);
+  showChips();
+}
+function hideArrows() { if (arrows) { scene.remove(arrows); arrows = null; } navchips.hidden = true; }
+// os mesmos destinos em botões fixos, para quando a seta ficar fora do quadro
+const navchips = document.getElementById("navchips");
+navchips.addEventListener("click", e => { const b = e.target.closest("[data-to]"); if (b) { const n = NAV[room].find(x => x[0] === b.dataset.to); goVia(n[0], n[2]); } });
+function showChips() {
+  navchips.innerHTML = `<span class="label">ir para</span>` + NAV[room].map(([to]) => `<button type="button" data-to="${to}">${ROOM_LABEL[to]} →</button>`).join("");
+  navchips.hidden = false;
+}
+function goVia(to, via) {
+  const [eye, look] = ROOMS[to].map(v => new THREE.Vector3(...v));
+  const pts = [camera.position.clone(), ...(via || []).map(([x, y]) => new THREE.Vector3(x, 1.55, y)), eye];
+  let dir = lookDir(eye, look);
+  if (to === "corredor" && via) dir = lookDir(pts[pts.length - 2], eye);
+  setRoom(to); hideArrows(); flyPath(pts, dir);
+}
+// olhar levemente para baixo (cerca de 27°) para as setas do piso entrarem no quadro
+function lookDir(from, to) {
+  const d = to.clone().sub(from).setY(0).normalize(); d.y = -0.5; return d.normalize();
+}
+function setRoom(name) {
+  room = name;
+  document.querySelectorAll("[data-room]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.room === name)));
 }
 function exitRoom() {
   if (!walking) return;
-  walking = false; keys.clear(); walkhint.hidden = true; scene.background = null;
+  walking = false; keys.clear(); walkhint.hidden = true; scene.background = null; room = null; hideArrows();
   camera.fov = 38; camera.updateProjectionMatrix();
   Object.assign(controls, { enableZoom: true, enablePan: true, rotateSpeed: 1, minDistance: 1.5, maxDistance: 25, minPolarAngle: 0, maxPolarAngle: Math.PI * 0.49 });
   document.querySelectorAll("[data-room]").forEach(b => b.setAttribute("aria-pressed", "false"));
@@ -72,9 +181,9 @@ function enterRoom(name) {
   camera.fov = 68; camera.updateProjectionMatrix();
   // alvo a 1 cm do olho: girar a órbita equivale a virar a cabeça
   Object.assign(controls, { enableZoom: false, enablePan: false, rotateSpeed: -0.35, minDistance: 0, maxDistance: 1, minPolarAngle: 0.2, maxPolarAngle: Math.PI - 0.2 });
-  document.querySelectorAll("[data-room]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.room === name)));
+  setRoom(name); hideArrows();
   applyCeiling();
-  flyTo(eye, eye.clone().add(look.sub(eye).normalize().multiplyScalar(0.01)));
+  flyTo(eye, eye.clone().addScaledVector(lookDir(eye, look), 0.01));
   box.focus({ preventScroll: true });
 }
 function walk(dt) {
