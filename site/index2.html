@@ -1,0 +1,335 @@
+<title>Ateliê Ipiranga</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: caderno de projeto — abertura com a foto da sala, princípios com fontes, pranchas por cômodo, modelo 3D e referências. */
+:root {
+  --paper: #EDEEEC;
+  --sheet: #F8F8F6;
+  --ink: #1C1D1F;
+  --muted: #5F6166;
+  --rule: #CDCFCB;
+  --pen: #2B55C8;
+  --chip: #FFFFFF;
+  --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --body: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --paper: #151618; --sheet: #1D1F22; --ink: #ECEDEA; --muted: #A0A3A9; --rule: #34373B; --pen: #7FA2FF; --chip: #26292D; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --paper: #151618; --sheet: #1D1F22; --ink: #ECEDEA; --muted: #A0A3A9; --rule: #34373B; --pen: #7FA2FF; --chip: #26292D; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font: 400 16px/1.55 var(--body); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--sheet); }
+.wrap { max-width: 1280px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
+a { color: var(--pen); }
+.label { font: 500 11px/1.2 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--sheet); border-bottom: 1px solid var(--rule); }
+.bar .wrap { display: flex; align-items: center; gap: 16px; padding-block: 10px; flex-wrap: wrap; }
+.bar .name { font: 700 15px/1 var(--display); font-stretch: 112%; margin-right: auto; }
+.palettes { display: flex; gap: 8px; flex-wrap: wrap; }
+.pal { display: flex; align-items: center; gap: 8px; border: 1px solid var(--rule); background: var(--chip); color: var(--ink); border-radius: 999px; padding: 6px 12px 6px 6px; font: 500 13px/1 var(--body); cursor: pointer; }
+.pal[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.pal:focus-visible, .thumbs button:focus-visible, .tool:focus-visible { outline: 2px solid var(--pen); outline-offset: 2px; }
+.sw { display: flex; }
+.sw i { width: 14px; height: 14px; border-radius: 50%; margin-left: -4px; border: 1.5px solid var(--chip); }
+.sw i:first-child { margin-left: 0; }
+
+.hero { padding-block: 32px 8px; display: grid; gap: 20px; }
+.hero-head { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 32px; align-items: end; }
+.hero h1 { font-size: clamp(44px, 7vw, 92px); line-height: .9; font-weight: 800; font-stretch: 120%; letter-spacing: -.015em; }
+.hero h1 span { display: block; font-weight: 400; font-stretch: 90%; font-size: .42em; letter-spacing: 0; margin-top: 10px; color: var(--muted); }
+.hero p { color: var(--muted); margin: 0; max-width: 56ch; }
+.hero img { display: block; width: 100%; height: auto; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 28px; border-top: 2px solid var(--ink); padding-top: 10px; font-variant-numeric: tabular-nums; }
+.facts b { font: 700 28px/1 var(--display); font-stretch: 90%; display: block; }
+
+section.block { padding-block: 48px; border-top: 1px solid var(--rule); }
+.block > header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 20px; margin-bottom: 20px; }
+.block h2 { font-size: clamp(28px, 3.6vw, 40px); font-weight: 700; font-stretch: 108%; }
+.cota { color: var(--pen); font-family: var(--mono); font-size: 13px; display: inline-flex; align-items: center; gap: 8px; }
+.cota::before, .cota::after { content: ""; width: 18px; height: 9px; border-left: 1px solid var(--pen); border-right: 1px solid var(--pen); background: linear-gradient(var(--pen), var(--pen)) center / 100% 1px no-repeat; }
+.lead { color: var(--muted); max-width: 70ch; margin: 0 0 18px; }
+
+.principles { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0 32px; }
+.principles div { border-top: 1px solid var(--rule); padding: 14px 0 18px; min-width: 0; }
+.principles h3 { font-size: 17px; font-weight: 650; font-stretch: 100%; margin-bottom: 6px; }
+.principles p { margin: 0; color: var(--muted); font-size: 15px; }
+.src { font: 400 12.5px/1.4 var(--mono); color: var(--muted); display: block; margin-top: 8px; }
+
+.plan { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 28px; align-items: start; }
+.plan figure { margin: 0; background: var(--sheet); border: 1px solid var(--rule); padding: 10px; }
+.plan img { display: block; width: 100%; height: auto; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; margin-top: 18px; }
+td { padding: 9px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+td.d { font-family: var(--mono); font-size: 13px; color: var(--muted); padding-right: 12px; }
+td.a { text-align: right; font-family: var(--mono); font-size: 13px; white-space: nowrap; }
+
+.room { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 28px; align-items: start; }
+.room.tall { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+.room figure { margin: 0; }
+.room img.main { display: block; width: 100%; height: auto; background: var(--sheet); }
+.room h3 { font-size: 24px; font-weight: 700; font-stretch: 106%; margin-bottom: 8px; }
+.room p { color: var(--muted); margin: 0 0 12px; }
+.room ul { margin: 0 0 14px; padding-left: 18px; color: var(--muted); font-size: 15px; }
+.room + .room { margin-top: 44px; }
+.thumbs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 8px; }
+.thumbs button { border: 0; padding: 0; background: none; cursor: pointer; color: var(--muted); font: 500 12px/1.3 var(--body); text-align: left; display: grid; gap: 4px; min-width: 0; }
+.thumbs img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; display: block; outline: 1px solid var(--rule); }
+.thumbs button[aria-pressed="true"] { color: var(--ink); }
+.thumbs button[aria-pressed="true"] img { outline: 2px solid var(--ink); }
+
+.palgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
+.palcard { display: grid; gap: 10px; cursor: pointer; border: 0; background: none; color: var(--ink); text-align: left; padding: 0; font: inherit; }
+.palcard img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; display: block; }
+.palcard .chips { display: flex; gap: 4px; }
+.palcard .chips i { flex: 1; height: 22px; }
+.palcard p { margin: 0; color: var(--muted); font-size: 14px; }
+.palcard[aria-pressed="true"] h3::after { content: " · em uso"; color: var(--pen); font-weight: 500; font-size: 14px; }
+
+.viewer { position: relative; background: var(--sheet); border: 1px solid var(--rule); aspect-ratio: 16 / 9; max-width: 100%; overflow: hidden; }
+.viewer canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.viewer .hint { position: absolute; left: 12px; bottom: 10px; }
+.viewer .status { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); text-align: center; padding: 16px; }
+.tools { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.tool { border: 1px solid var(--rule); background: var(--chip); color: var(--ink); border-radius: 6px; padding: 7px 12px; font: 500 13px/1 var(--body); cursor: pointer; }
+.tool[aria-pressed="true"] { border-color: var(--ink); }
+
+.refs { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 0 32px; }
+.refs li { border-top: 1px solid var(--rule); padding: 10px 0; list-style: none; min-width: 0; overflow-wrap: anywhere; }
+.refs ul { margin: 0; padding: 0; }
+.refs b { font-weight: 600; }
+.refs span { color: var(--muted); font-size: 14px; display: block; }
+.files { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0 32px; }
+.files div { border-top: 1px solid var(--rule); padding: 12px 0; min-width: 0; }
+.files code { font-family: var(--mono); font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
+footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--rule); }
+
+@media (max-width: 860px) {
+  .hero-head, .plan, .room, .room.tall { grid-template-columns: minmax(0, 1fr); }
+  .bar .name { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="bar"><div class="wrap">
+  <span class="name">Ateliê Ipiranga · Final 01</span>
+  <div class="palettes" id="palettes" role="group" aria-label="Paleta de cores"></div>
+</div></div>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="hero-head">
+      <h1>Ateliê Ipiranga <span>a casa como moldura</span></h1>
+      <div style="display:grid;gap:14px">
+        <p>Projeto de interiores para o apartamento final 01 do Ares Ipiranga, da Brio. Uma marcenaria contínua de freijó emoldura a rotina e a arte, uma cor-assinatura aparece em uma superfície de cada cômodo, e a luz quente vem toda sobreposta, porque as paredes são estruturais e não podem ser cortadas.</p>
+        <div class="facts"><div><b>31,22</b><span class="label">m² privativos</span></div><div><b>2,50</b><span class="label">m pé-direito</span></div><div><b>4</b><span class="label">paletas</span></div><div><b>8</b><span class="label">vistas por paleta</span></div></div>
+      </div>
+    </div>
+    <img data-view="sala" alt="Sala com sofá de linho, canto alemão sob a janela, cozinha de freijó e arte sobre o sofá" width="1600" height="1067">
+  </section>
+
+  <section class="block" id="conceito">
+    <header><h2>Por que assim</h2><span class="cota">pesquisa → decisão</span></header>
+    <p class="lead">A planta é a mesma de milhares de lançamentos em São Paulo. A identidade vem da marcenaria, da cor e da arte, e cada decisão de layout responde a um resultado de pesquisa sobre como espaços pequenos são percebidos.</p>
+    <div class="principles">
+      <div><h3>Mostrar o piso</h3><p>A área de piso visível pesa mais na sensação de amplitude do que a cor das paredes. Por isso o rack, os criados-mudos e a escrivaninha são suspensos, o sofá tem pés de 15 cm e o centro da sala fica livre.</p><a class="src" href="https://katalog.lib.cas.cz/KNAV/EdsRecord/8gh,58584401" target="_blank" rel="noopener">Stamps, Environment &amp; Behavior, 2011</a></div>
+      <div><h3>Volumes altos só encostados</h3><p>A sensação de clausura acompanha a altura dos limites mais próximos. Armários vão até o teto, sempre contra a parede; perto da passagem, nada passa de 90 cm.</p><a class="src" href="https://socialsciences.uchicago.edu/node/23296" target="_blank" rel="noopener">Stamps, 2012</a></div>
+      <div><h3>Teto branco, sem rebaixo</h3><p>Tetos claros parecem mais altos. A sala mantém os 2,50 m livres; o forro de gesso fica só no banheiro.</p><a class="src" href="https://www.staff.uni-mainz.de/oberfeld/downloads/oberfeld_hecht_gamer_2010.pdf" target="_blank" rel="noopener">Oberfeld, Hecht &amp; Gamer, 2010</a></div>
+      <div><h3>Janela livre, fundo iluminado</h3><p>A vista e a luz na parede oposta à janela ampliam o ambiente. A cortina fica recolhida na lateral e uma fita de LED lava o ripado de cima para baixo.</p><a class="src" href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11637840/" target="_blank" rel="noopener">Tural &amp; Tural, 2024</a></div>
+      <div><h3>Uma peça por cômodo</h3><p>Em vez de móveis soltos, um volume contínuo de marcenaria: 4,21 m na sala (TV, cozinha e geladeira), cabeceira e armário no quarto 1, estante e armário no quarto 2.</p><span class="src">MKCA · Soek · Casa 100</span></div>
+      <div><h3>Flexibilidade sem mecanismo</h3><p>O daybed transforma o quarto 2 em estúdio ou quarto de hóspedes, e o banco-baú do jantar guarda o que não cabe nos armários.</p><a class="src" href="https://www.academia.edu/751324/" target="_blank" rel="noopener">Schneider &amp; Till, arq, 2005</a></div>
+    </div>
+  </section>
+
+  <section class="block" id="planta">
+    <header><h2>Planta</h2><span class="cota">medidas internas do contrato</span></header>
+    <div class="plan">
+      <figure><img data-view="planta_cotada" alt="Planta humanizada vista de cima, com nomes e medidas dos cômodos" width="1100" height="1900"></figure>
+      <div>
+        <figure><img data-view="isometrica" alt="Vista isométrica do apartamento sem teto" width="1600" height="1600"></figure>
+        <table>
+          <tr><td>Estar, jantar e cozinha</td><td class="d">4,21 × 2,41 m · passagem livre ≥ 0,80 m</td><td class="a">≈ 10,1 m²</td></tr>
+          <tr><td>Dormitório 1</td><td class="d">2,91 × 2,41 m · lateral da cama ≈ 0,50 m</td><td class="a">≈ 7,0 m²</td></tr>
+          <tr><td>Dormitório 2</td><td class="d">2,01 × 2,51 m · daybed 0,88 × 1,88 m</td><td class="a">≈ 5,0 m²</td></tr>
+          <tr><td>Banheiro</td><td class="d">1,21 × 2,11 m · box até o forro</td><td class="a">≈ 2,6 m²</td></tr>
+          <tr><td>Serviço e corredor</td><td class="d">nicho 1,30 × 0,70 m · corredor 0,78 m</td><td class="a">—</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="comodos">
+    <header><h2>Cômodos</h2><span class="cota">câmera nivelada a 1,20 m · 18–22 mm</span></header>
+
+    <div class="room" id="estar">
+      <figure><img class="main" data-view="estar" alt="Parede única de marcenaria com ripado, TV, rack suspenso, cozinha e torre da geladeira" width="1600" height="1067"></figure>
+      <div>
+        <h3>A parede única</h3>
+        <p>São 4,21 m de marcenaria contínua, da janela até a porta de entrada.</p>
+        <ul><li>Ripado de freijó (2 × 4 cm, vão de 1,5 cm) com fita de LED no topo</li><li>Rack em laca suspenso a 25 cm do piso e TV de 43" com centro a 1,25 m</li><li>Cozinha de 1,84 m com aéreos até o teto, perfil de LED e azulejo 7,5 × 30</li><li>Torre da geladeira com armário em cima</li></ul>
+        <div class="thumbs" data-view="estar"></div>
+      </div>
+    </div>
+
+    <div class="room" id="sala">
+      <figure><img class="main" data-view="sala" alt="Sofá, canto alemão sob a janela e pendente sobre a mesa" width="1600" height="1067"></figure>
+      <div>
+        <h3>Estar e jantar</h3>
+        <p>Sofá de linho de 1,70 m na parede do quarto 2, sem chaise. O jantar virou um canto alemão sob a janela: banco-baú de freijó, mesa de 60 × 80 cm em pé central e uma cadeira de palhinha.</p>
+        <ul><li>Do sofá ao rack: 1,10 m livres</li><li>Pendente com base a 1,50 m e trilho de spots sobreposto</li><li>Cortina de linho do teto ao piso, recolhida na lateral</li></ul>
+        <div class="thumbs" data-view="sala"></div>
+      </div>
+    </div>
+
+    <div class="room" id="cozinha">
+      <figure><img class="main" data-view="cozinha" alt="Cozinha linear de freijó com aéreos em laca e nicho de serviço" width="1600" height="1067"></figure>
+      <div>
+        <h3>Cozinha e serviço</h3>
+        <p>Cooktop de indução de 2 bocas, cuba de 50 cm e tampo de quartzo a 90 cm. O nicho de serviço, junto ao banheiro, fecha com portas de correr em palhinha, que deixam a lava e seca ventilar.</p>
+        <ul><li>Puxador cava e frestas de 3 mm em todas as portas</li><li>Rodapé recuado em preto: o móvel parece flutuar</li><li>Frente da bancada ≥ 0,90 m livre</li></ul>
+        <div class="thumbs" data-view="cozinha"></div>
+      </div>
+    </div>
+
+    <div class="room tall" id="corredor">
+      <figure><img class="main" data-view="corredor" alt="Corredor com barrado colorido até 1,10 m e quadros" width="1280" height="1600"></figure>
+      <div>
+        <h3>Corredor-galeria</h3>
+        <p>O corredor de 78 cm ganha identidade com quase nenhum custo: pintura na cor-assinatura até 1,10 m, filete de freijó e dois quadros alinhados no mesmo eixo. Dois spots de sobrepor iluminam o caminho.</p>
+        <div class="thumbs" data-view="corredor"></div>
+      </div>
+    </div>
+
+    <div class="room" id="dorm1">
+      <figure><img class="main" data-view="dorm1" alt="Dormitório 1 com cabeceira estofada em gomos, criados suspensos e arandelas" width="1600" height="1067"></figure>
+      <div>
+        <h3>Dormitório 1</h3>
+        <p>Painel de freijó com cabeceira estofada em gomos verticais, criados-mudos suspensos com LED embaixo e arandelas articuladas a 1,10 m. A cama de casal de 1,38 m deixa cerca de 50 cm livres de cada lado.</p>
+        <div class="thumbs" data-view="dorm1"></div>
+      </div>
+    </div>
+
+    <div class="room" id="dorm1_b">
+      <figure><img class="main" data-view="dorm1_b" alt="Guarda-roupa de correr de freijó até o teto" width="1600" height="1067"></figure>
+      <div>
+        <h3>Armário até o teto</h3>
+        <p>O guarda-roupa de correr tem 55 cm de profundidade e 1,80 m de largura, com puxador cava vertical e rodapé recuado. Ele termina antes do corredor, para não estreitar a entrada do quarto.</p>
+        <div class="thumbs" data-view="dorm1_b"></div>
+      </div>
+    </div>
+
+    <div class="room" id="dorm2">
+      <figure><img class="main" data-view="dorm2" alt="Dormitório 2 como estúdio, com daybed, escrivaninha sob a janela e persiana" width="1600" height="1067"></figure>
+      <div>
+        <h3>Dormitório 2 · estúdio</h3>
+        <p>Daybed com gavetas e almofadas de encosto, escrivaninha suspensa sob a janela, persiana rolô e estante aberta. O guarda-roupa em laca concentra a cor-assinatura, e as paredes levam um tom médio da paleta.</p>
+        <div class="thumbs" data-view="dorm2"></div>
+      </div>
+    </div>
+
+    <div class="room tall" id="banho">
+      <figure><img class="main" data-view="banho" alt="Banheiro com box de vidro até o forro, azulejo vertical e bancada suspensa" width="1280" height="1600"></figure>
+      <div>
+        <h3>Banheiro</h3>
+        <p>A hidráulica fica onde está. O box tem vidro do piso ao forro e azulejo vertical 7,5 × 30 só na área molhada; o resto é pintado. Bancada suspensa de freijó com cuba de apoio, espelho com LED traseiro e prateleira de quartzo no lugar de nicho, porque a parede estrutural não pode ser cortada.</p>
+        <div class="thumbs" data-view="banho"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="paletas">
+    <header><h2>Paletas</h2><span class="cota">60% base · 30% madeira · 10% acento</span></header>
+    <div class="palgrid" id="palgrid"></div>
+  </section>
+
+  <section class="block" id="modelo">
+    <header><h2>Modelo 3D</h2><span class="cota">arraste para girar · role para aproximar</span></header>
+    <div class="tools">
+      <button class="tool" id="ceiling" aria-pressed="false" type="button">Mostrar teto</button>
+      <button class="tool" id="reset" type="button">Vista inicial</button>
+      <button class="tool" id="top" type="button">Vista de cima</button>
+    </div>
+    <div class="viewer" id="viewer"><div class="status" id="status">Carregando modelo…</div><span class="hint label">cores sólidas · escala 1:1 em metros</span></div>
+  </section>
+
+  <section class="block" id="referencias">
+    <header><h2>Referências</h2><span class="cota">projetos e pesquisa</span></header>
+    <div class="refs">
+      <ul>
+        <li><a href="https://www.dezeen.com/2018/05/03/24-square-metre-compact-apartment-casa-100-arquitetura-sao-paulo-brazil/" target="_blank" rel="noopener"><b>Casa 100 · Compact fit, 24 m²</b></a><span>Cozinha e armário num nicho só, fechado por portas de correr.</span></li>
+        <li><a href="https://www.archdaily.com/1151256/nebias-apartment-pr-arquitetos" target="_blank" rel="noopener"><b>Pro.a · Apto Nébias, 32 m²</b></a><span>Uma família em 32 m², com marcenaria autoral.</span></li>
+        <li><a href="https://www.archilovers.com/projects/287351/33-apartment.html" target="_blank" rel="noopener"><b>Soek · Apto 33, 33 m²</b></a><span>Uma marcenaria contínua concentra eletros e acessos.</span></li>
+        <li><a href="https://www.archdaily.com/885147/cazo-apartment-estudio-bra" target="_blank" rel="noopener"><b>Estúdio BRA · Apto Cazo, 38 m²</b></a><span>Paleta curta: madeira e cinza sobre branco.</span></li>
+      </ul>
+      <ul>
+        <li><a href="https://www.contemporist.com/a-custom-space-saving-solution-designed-for-a-small-new-york-apartment/" target="_blank" rel="noopener"><b>MKCA · Unfolding Apartment, 37 m²</b></a><span>Um armário gigante libera o resto do espaço.</span></li>
+        <li><a href="https://world-architects.com/ca/architecture-news/insight/the-point-is-to-squeeze-the-space-and-squeeze-the-time" target="_blank" rel="noopener"><b>Gary Chang · Domestic Transformer, 32 m²</b></a><span>O mesmo espaço em vários usos ao longo do dia.</span></li>
+        <li><a href="https://newatlas.com/didomestic-elii-architecture/30598" target="_blank" rel="noopener"><b>Elii · Didomestic</b></a><span>Um gesto de cor como identidade da casa.</span></li>
+        <li><a href="https://www.archdaily.com/953337" target="_blank" rel="noopener"><b>ArchDaily · apartamentos abaixo de 50 m²</b></a><span>Compilado de soluções compactas.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block" id="arquivos">
+    <header><h2>Arquivos</h2><span class="cota">~/ares-ipiranga-3d</span></header>
+    <div class="files">
+      <div><b>Caderno A3 (PDF)</b><br><code>Ares_Ipiranga_Atelie_Projeto3D.pdf</code></div>
+      <div><b>Blender, com materiais completos</b><br><code>modelo2/&lt;paleta&gt;/*.blend</code></div>
+      <div><b>FBX, OBJ, DAE e GLB</b><br><code>modelo2/terra/</code> · SketchUp, 3ds Max, Revit, Rhino</div>
+      <div><b>Renders 1920 px</b><br><code>renders2/&lt;paleta&gt;/*.jpg</code></div>
+      <div><b>Pesquisa de projeto</b><br><code>research/design_brief.md</code></div>
+      <div><b>Scripts paramétricos</b><br><code>build2.py · lib3d.py</code></div>
+    </div>
+  </section>
+
+  <footer>Estudo de interiores sobre a planta de contrato do Ares Ipiranga (Brio Incorporadora). Medidas internas do contrato, sujeitas ao projeto executivo; confirme no local antes da marcenaria. Texturas, céu e plantas: Poly Haven (CC0).</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+const PALETTES = __PALETTES__;
+const ORDER = ["terra", "mata", "moderno", "ipe"];
+let current = "terra";
+try { const s = localStorage.getItem("atelie-palette"); if (ORDER.includes(s)) current = s; } catch (e) {}
+
+const palBox = document.getElementById("palettes");
+ORDER.forEach(p => {
+  const b = document.createElement("button");
+  b.className = "pal"; b.type = "button"; b.dataset.p = p;
+  b.innerHTML = `<span class="sw">${PALETTES[p].swatches.slice(1, 5).map(c => `<i style="background:${c}"></i>`).join("")}</span>${PALETTES[p].label}`;
+  b.addEventListener("click", () => setPalette(p));
+  palBox.appendChild(b);
+});
+document.querySelectorAll(".thumbs").forEach(box => {
+  ORDER.forEach(p => {
+    const b = document.createElement("button");
+    b.type = "button"; b.dataset.p = p;
+    b.innerHTML = `<img src="img2/${p}_${box.dataset.view}.jpg" alt="" loading="lazy">${PALETTES[p].label}`;
+    b.addEventListener("click", () => setPalette(p));
+    box.appendChild(b);
+  });
+});
+const grid = document.getElementById("palgrid");
+ORDER.forEach(p => {
+  const b = document.createElement("button");
+  b.className = "palcard"; b.type = "button"; b.dataset.p = p;
+  b.innerHTML = `<img src="img2/${p}_estar.jpg" alt="" loading="lazy"><div class="chips">${PALETTES[p].swatches.map(c => `<i style="background:${c}" title="${c}"></i>`).join("")}</div><h3>${PALETTES[p].label}</h3><p>${PALETTES[p].why}</p>`;
+  b.addEventListener("click", () => setPalette(p));
+  grid.appendChild(b);
+});
+
+function setPalette(p) {
+  current = p;
+  try { localStorage.setItem("atelie-palette", p); } catch (e) {}
+  document.querySelectorAll("img[data-view]").forEach(img => { img.src = `img2/${p}_${img.dataset.view}.jpg`; });
+  document.querySelectorAll("[data-p]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.p === p)));
+  loadModel(p);
+}
+__VIEWER__
+</script>

@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+assets/
+modelo/
+modelo2/
+renders/
+test2/
+*.log
+Ares_Ipiranga_Final01_Projeto3D.pdf
+site/img/
+site/models/
+.vercel
+.DS_Store
+site/index.html
+site/img2/
+site/models2/
+dist/
