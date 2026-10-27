@@ -11,5 +11,8 @@ cat = catalog_merge.merge()
 catjs = open(os.path.join(S, "catalog.js")).read().replace("__CATALOG__", json.dumps(cat, ensure_ascii=False))
 page = (page.replace("__PALETTES__", json.dumps(pal, ensure_ascii=False)).replace("__VIEWER__", viewer)
         .replace("__CATALOGJS__", catjs))
+# a seção do vídeo só entra quando o MP4 existe
+if not os.path.exists(os.path.join(os.path.dirname(S), "video", "ares_ipiranga_tour_terra.mp4")):
+    page = re.sub(r"<!--VIDEO-->.*?<!--/VIDEO-->", "", page, flags=re.S)
 open(os.path.join(S, "index.html"), "w").write(page)
 print("index.html", len(page))

@@ -27,6 +27,11 @@ OUT = opt("--out", os.path.join(ROOT, "modelo2", PAL, f"ares_ipiranga_final01_{P
 PART = opt("--part", "all")          # all | base (sem o jantar) | dining (só o jantar)
 VARIANT = opt("--variant")           # opção de jantar do .blend, para o catálogo
 CAT_OUT = opt("--catalog-out", os.path.join(ROOT, "catalog.json"))
+LIGHTMAP = "--lightmap" in p          # pré-calcula a luz (Cycles) num atlas que vai como occlusionTexture
+LM_SIZE = int(opt("--lm-size", "2048"))
+LM_SAMPLES = int(opt("--lm-samples", "256"))
+LM_DEVICE = opt("--lm-device", "GPU")
+LM_FROM = opt("--lm-from")             # reaproveita a luz já calculada (.npy) de outra paleta: mesma geometria, mesmos UVs
 BAKE_DIR = os.path.join(ROOT, "web_tex", PAL)
 os.makedirs(BAKE_DIR, exist_ok=True)
 
@@ -47,12 +52,20 @@ for n in ["Ceu_externo", "Exterior"]:
     if o:
         bpy.data.objects.remove(o)
 for o in list(bpy.data.objects):
-    if o.type in ("LIGHT", "CAMERA"):
+    # com lightmap as luzes ficam até o bake
+    if o.type == "CAMERA" or (o.type == "LIGHT" and not LIGHTMAP):
         bpy.data.objects.remove(o)
-# o jantar da sala sai em arquivo próprio para o visualizador trocar as opções
+
+
+def is_dining(o):
+    return "dining" in o or (o.parent is not None and "dining" in o.parent)
+
+
+# o jantar da sala sai em arquivo próprio para o visualizador trocar as opções; no bake do jantar
+# o resto do apartamento fica na cena até o fim, para iluminar e sombrear as peças
 for o in list(bpy.data.objects):
-    is_d = "dining" in o or (o.parent is not None and "dining" in o.parent)
-    if (PART == "base" and is_d) or (PART == "dining" and not is_d and o.type in ("MESH", "EMPTY")):
+    d = is_dining(o)
+    if (PART == "base" and d) or (PART == "dining" and not LIGHTMAP and not d and o.type in ("MESH", "EMPTY")):
         bpy.data.objects.remove(o)
 
 
@@ -292,6 +305,147 @@ for o in bpy.data.objects:
             o.material_slots[i].material = webmats[nme]
 
 
+# ------------------------------------------------------------------ lightmap
+def bake_lightmap():
+    import numpy as np
+    from PIL import Image, ImageFilter
+    targets = [o for o in bpy.data.objects if o.type == "MESH" and o.data.polygons
+               and (PART != "dining" or is_dining(o))]
+    for o in targets:
+        if o.data.users > 1:
+            o.data = o.data.copy()
+        me = o.data
+        # malhas fechadas com faces para dentro (almofadas, frutas) assariam preto
+        bm = bmesh.new()
+        bm.from_mesh(me)
+        if bm.edges and all(e.is_manifold for e in bm.edges):
+            bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+            bm.to_mesh(me)
+        bm.free()
+        # TEXCOORD_0 = textura (vazio quando o material é cor sólida), TEXCOORD_1 = lightmap
+        if not me.uv_layers:
+            me.uv_layers.new(name="web")
+        while len(me.uv_layers) > 1:
+            me.uv_layers.remove(me.uv_layers[-1])
+        lm = me.uv_layers.new(name="lm")
+        me.uv_layers.active = lm
+    for o in bpy.context.view_layer.objects:
+        o.select_set(o in targets)
+    bpy.context.view_layer.objects.active = targets[0]
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.select_all(action="SELECT")
+    bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0.002, correct_aspect=True,
+                             scale_to_bounds=False)
+    bpy.ops.uv.pack_islands(margin=0.003, rotate=True)
+    bpy.ops.object.mode_set(mode="OBJECT")
+    # impressão digital do layout UV: tem de bater entre paletas para reaproveitar a luz
+    import hashlib
+    hsh = hashlib.md5()
+    for o in sorted(targets, key=lambda o: o.name):
+        uv = o.data.uv_layers["lm"].data
+        arr = [0.0] * (len(uv) * 2)
+        uv.foreach_get("uv", arr)
+        hsh.update(o.name.encode()); hsh.update(bytes(str([round(x, 4) for x in arr[:64]]), "ascii"))
+    print("UVHASH", hsh.hexdigest())
+
+    import numpy as np
+    stem = f"lightmap_{PART}_{os.path.splitext(os.path.basename(OUT))[0]}"
+    if LM_FROM:
+        return tone_lightmap(np.load(LM_FROM).astype(np.float32), stem)
+    img = bpy.data.images.new("lightmap", LM_SIZE, LM_SIZE, float_buffer=True)
+    added = []
+    for m in {s.material for o in targets for s in o.material_slots if s.material}:
+        n = m.node_tree.nodes.new("ShaderNodeTexImage")
+        n.image = img
+        m.node_tree.nodes.active = n
+        added.append((m, n))
+    sc.render.engine = "CYCLES"
+    if LM_DEVICE == "GPU":
+        prefs = bpy.context.preferences.addons["cycles"].preferences
+        prefs.compute_device_type = "METAL"
+        prefs.get_devices()
+        for d in prefs.devices:
+            d.use = True
+    sc.cycles.device = LM_DEVICE
+    sc.cycles.samples = LM_SAMPLES
+    sc.cycles.use_denoising = False
+    sc.render.bake.use_pass_direct = True
+    sc.render.bake.use_pass_indirect = True
+    sc.render.bake.use_pass_color = False
+    sc.render.bake.margin = 6
+    for o in bpy.context.view_layer.objects:
+        o.select_set(o in targets)
+    bpy.ops.object.bake(type="DIFFUSE", pass_filter={"DIRECT", "INDIRECT"}, margin=6, use_clear=True)
+    for m, n in added:
+        m.node_tree.nodes.remove(n)
+
+    a = np.array(img.pixels[:], dtype=np.float32).reshape(LM_SIZE, LM_SIZE, 4)[::-1, :, :3]
+    lum = a @ np.array([0.2126, 0.7152, 0.0722], dtype=np.float32)
+    np.save(os.path.join(BAKE_DIR, stem + ".npy"), lum.astype(np.float16))
+    return tone_lightmap(lum, stem)
+
+
+def tone_lightmap(lum, stem):
+    """Luz (irradiância) -> luminância normalizada em 8 bits; o visualizador multiplica pela luz ambiente."""
+    import numpy as np
+    from PIL import Image, ImageFilter
+    used = lum[lum > 1e-4]
+    ref = float(np.percentile(used, 98)) if used.size else 1.0
+    v = np.clip(lum / ref, 0, 1) ** (1 / 1.6)       # curva suave: mais níveis nas sombras
+    im = Image.fromarray((v * 255).astype(np.uint8), "L").filter(ImageFilter.GaussianBlur(1.0))
+    path = os.path.join(BAKE_DIR, stem + ".jpg")
+    im.convert("RGB").save(path, quality=88)
+    print("LIGHTMAP", path, "ref", round(ref, 3))
+    return path, ref
+
+
+def add_occlusion(glb, jpg):
+    """Embute o atlas como occlusionTexture (texCoord 1) em todos os materiais do GLB."""
+    import struct
+    b = open(glb, "rb").read()
+    off, js, bn = 12, None, b""
+    while off < len(b):
+        ln, typ = struct.unpack("<I4s", b[off:off + 8])
+        if typ == b"JSON":
+            js = json.loads(b[off + 8:off + 8 + ln])
+        elif typ == b"BIN\x00":
+            bn = b[off + 8:off + 8 + ln]
+        off += 8 + ln
+    data = open(jpg, "rb").read()
+    pad = (4 - len(bn) % 4) % 4
+    bn = bn + b"\x00" * pad
+    js.setdefault("bufferViews", []).append({"buffer": 0, "byteOffset": len(bn), "byteLength": len(data)})
+    bn = bn + data
+    bn += b"\x00" * ((4 - len(bn) % 4) % 4)
+    js["buffers"][0]["byteLength"] = len(bn)
+    js.setdefault("images", []).append({"bufferView": len(js["bufferViews"]) - 1, "mimeType": "image/jpeg", "name": "lightmap"})
+    js.setdefault("samplers", []).append({"magFilter": 9729, "minFilter": 9987, "wrapS": 33071, "wrapT": 33071})
+    js.setdefault("textures", []).append({"source": len(js["images"]) - 1, "sampler": len(js["samplers"]) - 1})
+    t = len(js["textures"]) - 1
+    has_uv1 = set()
+    for mesh in js.get("meshes", []):
+        for prim in mesh["primitives"]:
+            if "TEXCOORD_1" in prim["attributes"] and "material" in prim:
+                has_uv1.add(prim["material"])
+    for i, m in enumerate(js.get("materials", [])):
+        if i in has_uv1:
+            m["occlusionTexture"] = {"index": t, "texCoord": 1}
+    jb = json.dumps(js, separators=(",", ":")).encode()
+    jb += b" " * ((4 - len(jb) % 4) % 4)
+    out = struct.pack("<III", 0x46546C67, 2, 12 + 8 + len(jb) + 8 + len(bn))
+    out += struct.pack("<I4s", len(jb), b"JSON") + jb + struct.pack("<I4s", len(bn), b"BIN\x00") + bn
+    open(glb, "wb").write(out)
+    print("OCCLUSION", len(has_uv1), "materiais")
+
+
+lm_path = None
+if LIGHTMAP:
+    lm_path, lm_ref = bake_lightmap()
+    for o in list(bpy.data.objects):
+        if o.type == "LIGHT" or (PART == "dining" and o.type in ("MESH", "EMPTY") and not is_dining(o)):
+            bpy.data.objects.remove(o)
+
+
 def export(path, selection=False):
     bpy.ops.export_scene.gltf(filepath=path, export_format="GLB", export_image_format="JPEG",
                               export_jpeg_quality=82, export_apply=True, export_normals=True,
@@ -301,6 +455,8 @@ def export(path, selection=False):
 out = OUT
 os.makedirs(os.path.dirname(out), exist_ok=True)
 export(out)
+if lm_path:
+    add_occlusion(out, lm_path)
 print("LIGHT", PAL, os.path.getsize(out))
 
 if CATALOG:

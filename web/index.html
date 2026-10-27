@@ -312,6 +312,8 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
     <div class="viewer" id="viewer"><div class="status" id="status">Carregando modelo…</div><span class="hint label">cores sólidas · escala 1:1 em metros</span><div class="navchips" id="navchips" hidden></div><div class="vdin" id="vdin"></div><span class="hint label walk" id="walkhint" hidden>clique nas setas do piso para ir a outro cômodo · arraste para olhar · W A S D para andar</span></div>
   </section>
 
+
+
   <section class="block" id="catalogo">
     <header><h2>Móveis e eletrodomésticos</h2><span class="cota">medidas em centímetros</span></header>
     <p class="lead">Cada peça do projeto com largura, profundidade e altura tiradas do próprio modelo. Largura é a medida ao longo da parede onde a peça encosta. Clique na imagem para girar a peça em 3D com as cotas. Peças mostradas na paleta Terra Paulista.</p>
@@ -446,6 +448,14 @@ function setPalette(p) {
 }
 /* ---------- viewer 3D ---------- */
 const box = document.getElementById("viewer"), status = document.getElementById("status");
+let hemi, sun, fill;
+// luz pré-calculada no Cycles chega como occlusionTexture (aoMap): ela passa a ser a única fonte, sobre uma luz ambiente branca
+const BAKED = { ambient: 1.25, exposure: 1.0 };
+function bakedLighting(on) {
+  hemi.color.set(on ? 0xffffff : 0xfffaf2); hemi.groundColor.set(on ? 0xffffff : 0x6f675e);
+  hemi.intensity = on ? BAKED.ambient : 0.62; sun.visible = fill.visible = !on;
+  renderer.toneMappingExposure = on ? BAKED.exposure : 1.0;
+}
 let renderer, scene, camera, controls, model, showCeiling = false, walking = false, fly = null;
 const keys = new Set(), clock = new THREE.Clock(), walkhint = document.getElementById("walkhint");
 // olho a 1,55 m; coordenadas do modelo: x, altura, y da planta
@@ -483,9 +493,9 @@ function initViewer() {
   box.prepend(renderer.domElement);
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(38, 16 / 9, 0.05, 200);
-  scene.add(new THREE.HemisphereLight(0xfffaf2, 0x6f675e, 0.62));
-  const sun = new THREE.DirectionalLight(0xfff1e0, 0.85); sun.position.set(-6, 10, 4); scene.add(sun);
-  const fill = new THREE.DirectionalLight(0xdfe8ff, 0.28); fill.position.set(8, 6, 10); scene.add(fill);
+  hemi = new THREE.HemisphereLight(0xfffaf2, 0x6f675e, 0.62); scene.add(hemi);
+  sun = new THREE.DirectionalLight(0xfff1e0, 0.85); sun.position.set(-6, 10, 4); scene.add(sun);
+  fill = new THREE.DirectionalLight(0xdfe8ff, 0.28); fill.position.set(8, 6, 10); scene.add(fill);
   controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true; controls.maxPolarAngle = Math.PI * 0.49;
   controls.minDistance = 1.5; controls.maxDistance = 25;
@@ -660,6 +670,7 @@ function fetchGLTF(url) {
     delete json.buffers[0].uri;
     new THREE.GLTFLoader().parse(toGLB(json, bin), "", g => {
       g.scene.traverse(o => [].concat(o.material || []).forEach(m => {
+        if (m.aoMap) { m.aoMapIntensity = 1; g.baked = true; }
         if (/^Vidro/.test(m.name)) Object.assign(m, { transparent: true, opacity: m.name === "Vidro" ? 0.12 : 0.45, metalness: 0, roughness: 0.05, depthWrite: false });
       }));
       ok(g);
@@ -676,6 +687,7 @@ function loadModel(p) {
     if (current !== p) return;
     if (model) scene.remove(model);
     model = g.scene; scene.add(model); applyCeiling(); status.hidden = true;
+    bakedLighting(!!g.baked);
   }).catch(fail);
   loadDining(p);
 }
