@@ -328,7 +328,10 @@ def sala(P, M, rnd):
     am = image_mat(f"Arte sala {P['label']}", os.path.join(art.OUT, f"{P['key']}_art_sala.jpg"), rough=0.7)
     picture("Sala_arte", 1.00, 5.19, 1.10, 1.00, 0.70, "+y", am, M["wood_dark"], passe=M["paper"], depth=0.03)
 
+    before = set(bpy.data.objects)
     dining(P, M, wood)
+    for o in set(bpy.data.objects) - before:
+        o["dining"] = DINING
 
     # cortina de linho até o teto, recolhida na lateral
     box("Sala_trilho", 0.03, 0.08, 5.22, 7.30, H - 0.03, H - 0.005, M["black"], "Esquadrias", bevel=0.002)
@@ -379,7 +382,7 @@ def sala(P, M, rnd):
         spot(f"Spot_{i}", x, 6.40, H - 0.18, tgt, 35, size_deg=38, blend=0.8)
 
 
-DINING = "canto"   # canto | bancada | rebativel | rebativel_fechada | centro
+DINING = "rebativel"   # canto | bancada | rebativel | rebativel_fechada | centro
 
 
 def stool(name, cx, cy, M, h=0.66):
@@ -808,7 +811,8 @@ if __name__ == "__main__":
     ap.add_argument("--samples", type=int, default=256)
     ap.add_argument("--export", default="")
     ap.add_argument("--out", default="renders2")
-    ap.add_argument("--dining", default="canto")
+    ap.add_argument("--dining", default="rebativel")
+    ap.add_argument("--save", default="", help="só monta a cena e salva o .blend neste caminho")
     args = ap.parse_args(sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:])
     DINING = args.dining
     views = list(VIEWS) if args.views == "all" else [v for v in args.views.split(",") if v]
@@ -818,6 +822,11 @@ if __name__ == "__main__":
         os.makedirs(os.path.dirname(out), exist_ok=True)
         render_view(v, out, args.samples, P)
         print("OK", out, flush=True)
+    if args.save:
+        build(args.palette)
+        os.makedirs(os.path.dirname(args.save), exist_ok=True)
+        bpy.ops.wm.save_as_mainfile(filepath=args.save)
+        print("SAVED", args.save, flush=True)
     if args.export:
         import build as v1
         build(args.palette)

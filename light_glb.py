@@ -16,8 +16,17 @@ import catalog_items
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 p = [a for a in sys.argv[sys.argv.index("--") + 1:]] if "--" in sys.argv else sys.argv[1:]
-PAL = [a for a in p if not a.startswith("--")][-1]
+def opt(name, default=None):
+    return p[p.index(name) + 1] if name in p else default
+
+
+PAL = p[0]
 CATALOG = "--catalog" in p
+BLEND = opt("--blend", os.path.join(ROOT, "modelo2", PAL, f"ares_ipiranga_final01_{PAL}.blend"))
+OUT = opt("--out", os.path.join(ROOT, "modelo2", PAL, f"ares_ipiranga_final01_{PAL}_web.glb"))
+PART = opt("--part", "all")          # all | base (sem o jantar) | dining (só o jantar)
+VARIANT = opt("--variant")           # opção de jantar do .blend, para o catálogo
+CAT_OUT = opt("--catalog-out", os.path.join(ROOT, "catalog.json"))
 BAKE_DIR = os.path.join(ROOT, "web_tex", PAL)
 os.makedirs(BAKE_DIR, exist_ok=True)
 
@@ -31,7 +40,7 @@ EXTENT = {
 }
 AX = {"x": 0, "y": 1, "z": 2}
 
-bpy.ops.wm.open_mainfile(filepath=os.path.join(ROOT, "modelo2", PAL, f"ares_ipiranga_final01_{PAL}.blend"))
+bpy.ops.wm.open_mainfile(filepath=BLEND)
 sc = bpy.context.scene
 for n in ["Ceu_externo", "Exterior"]:
     o = bpy.data.objects.get(n)
@@ -39,6 +48,11 @@ for n in ["Ceu_externo", "Exterior"]:
         bpy.data.objects.remove(o)
 for o in list(bpy.data.objects):
     if o.type in ("LIGHT", "CAMERA"):
+        bpy.data.objects.remove(o)
+# o jantar da sala sai em arquivo próprio para o visualizador trocar as opções
+for o in list(bpy.data.objects):
+    is_d = "dining" in o or (o.parent is not None and "dining" in o.parent)
+    if (PART == "base" and is_d) or (PART == "dining" and not is_d and o.type in ("MESH", "EMPTY")):
         bpy.data.objects.remove(o)
 
 
@@ -216,7 +230,10 @@ def bbox(obs):
 
 catalog = []
 if CATALOG:
-    for (iid, name, room, typ, pat, face, pick, note) in catalog_items.ITEMS:
+    for (iid, name, room, typ, pat, face, pick, note, *extra) in catalog_items.ITEMS:
+        src, opts = (extra + [None, None])[:2]
+        if src != VARIANT:
+            continue
         obs = item_objects(pat, pick)
         if not obs:
             print("SEM OBJETOS", iid)
@@ -225,7 +242,7 @@ if CATALOG:
         dx, dy, dz = (mx[i] - mn[i] for i in range(3))
         # largura = ao longo da parede onde a peça encosta; profundidade = perpendicular
         L, P = (dx, dy) if face in ("n", "s") else (dy, dx)
-        catalog.append(dict(id=iid, name=name, room=room, type=typ, note=note, face=face,
+        catalog.append(dict(id=iid, name=name, room=room, type=typ, note=note, face=face, opts=opts or "",
                             w=round(L, 3), d=round(P, 3), h=round(dz, 3), z0=round(max(mn[2], 0), 3),
                             objs=[o.name for o in obs]))
 
@@ -281,7 +298,8 @@ def export(path, selection=False):
                               use_selection=selection, export_texcoords=True)
 
 
-out = os.path.join(ROOT, "modelo2", PAL, f"ares_ipiranga_final01_{PAL}_web.glb")
+out = OUT
+os.makedirs(os.path.dirname(out), exist_ok=True)
 export(out)
 print("LIGHT", PAL, os.path.getsize(out))
 
@@ -293,5 +311,5 @@ if CATALOG:
             o.select_set(o.name in it["objs"])
         export(os.path.join(idir, f"{it['id']}.glb"), selection=True)
         del it["objs"]
-    json.dump(catalog, open(os.path.join(ROOT, "catalog.json"), "w"), ensure_ascii=False, indent=1)
+    json.dump(catalog, open(CAT_OUT, "w"), ensure_ascii=False, indent=1)
     print("CATALOG", len(catalog))

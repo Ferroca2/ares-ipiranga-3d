@@ -26,6 +26,7 @@ const ROOM_LABEL = { sala: "Sala", cozinha: "Cozinha", corredor: "Corredor", dor
 let room = null, arrows = null;
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
 const cache = {};
+
 const CENTER = new THREE.Vector3(2.1, 0.8, 3.8);
 function initViewer() {
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -204,26 +205,56 @@ function applyCeiling() {
   if (!model) return;
   model.traverse(o => { if (/^(Teto|Sanca)/.test(o.name)) o.visible = showCeiling || walking; });
 }
-function loadModel(p) {
-  if (!renderer) return;
-  const show = gltf => {
-    if (current !== p) return;
-    if (model) scene.remove(model);
-    model = gltf.scene; scene.add(model); applyCeiling(); status.hidden = true;
-    model.traverse(o => [].concat(o.material || []).forEach(m => {
-      if (/^Vidro/.test(m.name)) Object.assign(m, { transparent: true, opacity: m.name === "Vidro" ? 0.12 : 0.45, metalness: 0, roughness: 0.05, depthWrite: false });
-    }));
-  };
-  if (cache[p]) return show(cache[p]);
-  status.hidden = false; status.textContent = "Carregando modelo…";
-  const fail = err => { console.error(err); status.hidden = false; status.textContent = "Não foi possível carregar o modelo 3D. Recarregue a página para tentar de novo."; };
-  fetch(`models/${p}.json`).then(r => r.json()).then(json => {
-    // o frame bloqueia URLs data:, então o buffer embutido vira um GLB montado em memória
+function fetchGLTF(url) {
+  if (cache[url]) return cache[url];
+  // o frame bloqueia URLs data:, então o buffer embutido vira um GLB montado em memória
+  return cache[url] = fetch(url).then(r => r.json()).then(json => new Promise((ok, bad) => {
     const b64 = json.buffers[0].uri.split(",")[1];
     const bin = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
     delete json.buffers[0].uri;
-    new THREE.GLTFLoader().parse(toGLB(json, bin), "", g => { cache[p] = g; show(g); }, fail);
+    new THREE.GLTFLoader().parse(toGLB(json, bin), "", g => {
+      g.scene.traverse(o => [].concat(o.material || []).forEach(m => {
+        if (/^Vidro/.test(m.name)) Object.assign(m, { transparent: true, opacity: m.name === "Vidro" ? 0.12 : 0.45, metalness: 0, roughness: 0.05, depthWrite: false });
+      }));
+      ok(g);
+    }, bad);
+  })).catch(e => { delete cache[url]; throw e; });
+}
+const fail = err => { console.error(err); status.hidden = false; status.textContent = "Não foi possível carregar o modelo 3D. Recarregue a página para tentar de novo."; };
+// apartamento sem o jantar + a peça de jantar escolhida (A, B aberta/fechada ou C)
+let dmodel = null, tableOpen = true;
+function loadModel(p) {
+  if (!renderer) return;
+  status.hidden = false; status.textContent = "Carregando modelo…";
+  fetchGLTF(`models3/${p}_base.json`).then(g => {
+    if (current !== p) return;
+    if (model) scene.remove(model);
+    model = g.scene; scene.add(model); applyCeiling(); status.hidden = true;
   }).catch(fail);
+  loadDining(p);
+}
+function loadDining(p) {
+  if (!renderer) return;
+  const key = dining === "rebativel" && !tableOpen ? "rebativel_fechada" : dining;
+  syncDinButtons();
+  fetchGLTF(`models3/${p}_${key}.json`).then(g => {
+    if (current !== p) return;
+    if (dmodel) scene.remove(dmodel);
+    dmodel = g.scene; scene.add(dmodel);
+  }).catch(fail);
+}
+const vdin = document.getElementById("vdin");
+vdin.innerHTML = Object.entries(DINING).map(([k, d]) => `<button type="button" data-vdin="${k}">${d.tag} · ${d.label}</button>`).join("") +
+  `<button type="button" id="mesaopen"></button>`;
+vdin.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.id === "mesaopen") { tableOpen = !tableOpen; loadDining(current); }
+  else setDining(b.dataset.vdin);
+});
+function syncDinButtons() {
+  vdin.querySelectorAll("[data-vdin]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.vdin === dining)));
+  const m = document.getElementById("mesaopen");
+  m.hidden = dining !== "rebativel"; m.textContent = tableOpen ? "Fechar mesa" : "Abrir mesa";
 }
 function toGLB(json, bin) {
   const enc = new TextEncoder().encode(JSON.stringify(json));

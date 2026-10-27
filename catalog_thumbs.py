@@ -11,12 +11,15 @@ import catalog_items
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 args = sys.argv[1:]
+BLEND = args[args.index("--blend") + 1] if "--blend" in args else None
+VARIANT = args[args.index("--variant") + 1] if "--variant" in args else None
+args = [a for i, a in enumerate(args) if not a.startswith("--") and (i == 0 or args[i - 1] not in ("--blend", "--variant"))]
 PAL = args[0] if args else "terra"
 ONLY = set(args[1:])
 OUT = os.path.join(ROOT, "catalog_png")
 os.makedirs(OUT, exist_ok=True)
 
-bpy.ops.wm.open_mainfile(filepath=os.path.join(ROOT, "modelo2", PAL, f"ares_ipiranga_final01_{PAL}.blend"))
+bpy.ops.wm.open_mainfile(filepath=BLEND or os.path.join(ROOT, "modelo2", PAL, f"ares_ipiranga_final01_{PAL}.blend"))
 sc = bpy.context.scene
 for o in list(bpy.data.objects):
     if o.type in ("LIGHT", "CAMERA") or o.name in ("Exterior", "Ceu_externo"):
@@ -54,8 +57,10 @@ catcher.is_shadow_catcher = True
 FRONT = {"n": Vector((0, 1, 0)), "s": Vector((0, -1, 0)), "e": Vector((1, 0, 0)), "w": Vector((-1, 0, 0))}
 meshes = [o for o in bpy.data.objects if o.type == "MESH" and o not in (catcher,)]
 
-for (iid, name, room, typ, pat, face, pick, note) in catalog_items.ITEMS:
+for (iid, name, room, typ, pat, face, pick, note, *extra) in catalog_items.ITEMS:
     if ONLY and iid not in ONLY:
+        continue
+    if (extra[0] if extra else None) != VARIANT:
         continue
     obs = [o for o in meshes if re.search(pat, o.name)]
     if pick and obs:

@@ -52,8 +52,22 @@ def font(size, bold=False):
     return ImageFont.load_default()
 
 
-def labeled_plan(p):
-    im = Image.open(os.path.join(REN, p, "planta.jpg")).convert("RGBA")
+RJ = os.path.join(ROOT, "renders_j")
+DOPTS = ["rebativel", "bancada", "centro"]
+DVIEWS = ["sala", "estar", "isometrica", "planta_cotada"]
+
+
+def rpath(p, v, opt="rebativel"):
+    """Render da vista; as vistas da sala vêm da opção de jantar (B por padrão) quando já existem."""
+    q = os.path.join(RJ, opt, p, f"{v}.jpg")
+    return q if os.path.exists(q) else os.path.join(REN, p, f"{v}.jpg")
+
+
+def labeled_plan(p, opt=None):
+    src = os.path.join(RJ, opt, p, "planta.jpg") if opt else os.path.join(REN, p, "planta.jpg")
+    if not os.path.exists(src):
+        return None
+    im = Image.open(src).convert("RGBA")
     ov = Image.new("RGBA", im.size, (0, 0, 0, 0))
     d = ImageDraw.Draw(ov)
     f1, f2 = font(26, True), font(22)
@@ -70,7 +84,7 @@ def labeled_plan(p):
     sx, sy = 550 + (0 - 2.1) * s, 950 + (7.95 - 3.8) * s
     d.rectangle([sx, sy, sx + s, sy + 7], fill=(28, 28, 28, 255))
     d.text((sx + s + 12, sy - 9), "1 m", font=f2, fill=(28, 28, 28, 255))
-    out = os.path.join(REN, p, "planta_cotada.jpg")
+    out = os.path.join(RJ, opt, p, "planta_cotada.jpg") if opt else os.path.join(REN, p, "planta_cotada.jpg")
     Image.alpha_composite(im, ov).convert("RGB").save(out, quality=92)
 
 
@@ -125,7 +139,7 @@ def pdf():
         return y
 
     # capa
-    img(os.path.join(REN, "terra", "sala.jpg"), W * 0.36, M, W * 0.64 - M, Hh - 2 * M)
+    img(rpath("terra", "sala"), W * 0.36, M, W * 0.64 - M, Hh - 2 * M)
     c.setFillColorRGB(*ink)
     c.setFont("Helvetica-Bold", 46)
     c.drawString(M, Hh * 0.66, "Ateliê Ipiranga")
@@ -181,8 +195,8 @@ def pdf():
 
     # planta
     header("Planta humanizada", "Medidas internas do contrato; layout Ateliê Ipiranga")
-    img(os.path.join(REN, "terra", "planta_cotada.jpg"), M, M, W * 0.40, Hh - 2 * M - 60)
-    img(os.path.join(REN, "terra", "isometrica.jpg"), M + W * 0.42, M, W * 0.58 - 2 * M, Hh - 2 * M - 60)
+    img(rpath("terra", "planta_cotada"), M, M, W * 0.40, Hh - 2 * M - 60)
+    img(rpath("terra", "isometrica"), M + W * 0.42, M, W * 0.58 - 2 * M, Hh - 2 * M - 60)
     c.showPage()
 
     # paletas
@@ -191,7 +205,7 @@ def pdf():
     for i, p in enumerate(ORDER):
         lab, sw, why = PAL[p]
         x = M + i * cw
-        img(os.path.join(REN, p, "estar.jpg"), x + 6, Hh * 0.42, cw - 12, Hh * 0.42)
+        img(rpath(p, "estar"), x + 6, Hh * 0.42, cw - 12, Hh * 0.42)
         c.setFillColorRGB(*ink)
         c.setFont("Helvetica-Bold", 15)
         c.drawString(x + 8, Hh * 0.39, lab)
@@ -208,7 +222,7 @@ def pdf():
     # páginas grandes da paleta recomendada
     for v, t, d in ROOMS:
         header(t, d + " · paleta Terra Paulista")
-        img(os.path.join(REN, "terra", f"{v}.jpg"), M, M, W - 2 * M, Hh - 2 * M - 60)
+        img(rpath("terra", v), M, M, W - 2 * M, Hh - 2 * M - 60)
         c.showPage()
 
     # comparação por cômodo
@@ -218,11 +232,28 @@ def pdf():
         for i, p in enumerate(ORDER):
             gx = M + (i % 3) * (gw + 16)
             gy = M + (1 - i // 3) * (gh + 10)
-            x, y, dw, dh = img(os.path.join(REN, p, f"{v}.jpg"), gx, gy + 16, gw, gh - 16)
+            x, y, dw, dh = img(rpath(p, v), gx, gy + 16, gw, gh - 16)
             c.setFillColorRGB(*ink)
             c.setFont("Helvetica-Bold", 11)
             c.drawString(x, y - 13, PAL[p][0])
         c.showPage()
+
+    # opções de jantar
+    header("Onde comer na sala · três opções", "O meio da sala fica livre entre o sofá e a TV; o jantar acontece junto à janela")
+    gw = (W - 2 * M - 32) / 3
+    for i, (o, t, d) in enumerate([("bancada", "A · Bancada na janela", "Bancada 100 x 38 cm a 97 cm, duas banquetas altas que encaixam embaixo."),
+                                   ("rebativel", "B · Mesa rebatível (padrão)", "Tampo 84 x 50 cm que abre sobre braços articulados; fechada ocupa 6 cm."),
+                                   ("centro", "C · Mesa de centro elevatória", "Tampo sobe de 40 para 63 cm; o banco-baú vira canto de leitura.")]):
+        x = M + i * (gw + 16)
+        q = os.path.join(RJ, o, "terra", "sala.jpg")
+        q = q if os.path.exists(q) else os.path.join(ROOT, "renders_opcoes", o, "terra", "sala.jpg")
+        if os.path.exists(q):
+            img(q, x, Hh * 0.40, gw, Hh * 0.42)
+        c.setFillColorRGB(*ink)
+        c.setFont("Helvetica-Bold", 14)
+        c.drawString(x, Hh * 0.36, t)
+        para(d, x, Hh * 0.36 - 18, gw, 10.5, 14)
+    c.showPage()
 
     # catálogo de móveis e eletrodomésticos
     cat = json.load(open(os.path.join(ROOT, "catalog.json")))
@@ -277,24 +308,35 @@ def glb_to_json(src, dst):
 
 
 def ready(p):
-    return all(os.path.exists(os.path.join(REN, p, f"{v}.jpg")) for v in ["isometrica", "planta"] + [r[0] for r in ROOMS]
+    return all(os.path.exists(rpath(p, v)) for v in ["isometrica", "planta"] + [r[0] for r in ROOMS]
                if v != "planta_cotada")
 
 
 def site():
     img_dir = os.path.join(SITE, "img2")
     os.makedirs(img_dir, exist_ok=True)
-    os.makedirs(os.path.join(SITE, "models2"), exist_ok=True)
     os.makedirs(os.path.join(SITE, "items"), exist_ok=True)
     done = [p for p in ORDER if ready(p)]
     for p in done:
         for v in ["planta_cotada", "isometrica"] + [r[0] for r in ROOMS]:
-            im = Image.open(os.path.join(REN, p, f"{v}.jpg"))
+            im = Image.open(rpath(p, v))
             im.thumbnail((1600, 1600))
             im.save(os.path.join(img_dir, f"{p}_{v}.jpg"), quality=80, optimize=True, progressive=True)
-        g = os.path.join(ROOT, "modelo2", p, f"ares_ipiranga_final01_{p}_web.glb")
-        if os.path.exists(g):
-            glb_to_json(g, os.path.join(SITE, "models2", f"{p}.json"))
+    for p in done:
+        for o in DOPTS:
+            labeled_plan(p, o)
+            for v in DVIEWS:
+                q = os.path.join(RJ, o, p, f"{v}.jpg")
+                if os.path.exists(q):
+                    im = Image.open(q)
+                    im.thumbnail((1600, 1600))
+                    im.save(os.path.join(img_dir, f"{p}_{v}__{o}.jpg"), quality=80, optimize=True, progressive=True)
+        wd = os.path.join(ROOT, "modelo2", p, "web")
+        os.makedirs(os.path.join(SITE, "models3"), exist_ok=True)
+        if os.path.isdir(wd):
+            for f in os.listdir(wd):
+                if f.endswith(".glb"):
+                    glb_to_json(os.path.join(wd, f), os.path.join(SITE, "models3", f"{p}_{f[:-4]}.json"))
     catalog_site()
     meta = {p: dict(label=PAL[p][0], swatches=PAL[p][1], why=PAL[p][2]) for p in done}
     json.dump(meta, open(os.path.join(SITE, "palettes2.json"), "w"), ensure_ascii=False)
@@ -314,6 +356,8 @@ def catalog_site():
 
 if __name__ == "__main__":
     import sys
+    import catalog_merge
+    catalog_merge.merge()
     if "--site" in sys.argv:
         site()
         print("site ok")

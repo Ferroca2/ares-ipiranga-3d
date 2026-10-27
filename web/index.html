@@ -35,6 +35,14 @@ a { color: var(--pen); }
 .pal { display: flex; align-items: center; gap: 8px; border: 1px solid var(--rule); background: var(--chip); color: var(--ink); border-radius: 999px; padding: 6px 12px 6px 6px; font: 500 13px/1 var(--body); cursor: pointer; }
 .pal[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
 .pal:focus-visible, .thumbs button:focus-visible, .tool:focus-visible { outline: 2px solid var(--pen); outline-offset: 2px; }
+.dinsel { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.dinsel button { border: 1px solid var(--rule); background: var(--chip); color: var(--ink); border-radius: 999px; padding: 6px 11px; font: 500 13px/1 var(--body); cursor: pointer; }
+.dinsel button[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.dinsel button b { color: var(--pen); margin-right: 4px; }
+.vdin { position: absolute; right: 12px; bottom: 34px; display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; max-width: calc(100% - 24px); }
+.vdin button { border: 0; border-radius: 999px; background: rgba(20,21,23,.72); color: #fff; font: 600 12.5px/1 var(--body); padding: 8px 11px; cursor: pointer; }
+.vdin button[aria-pressed="true"] { background: #2B55C8; }
+.vdin button[hidden] { display: none; }
 .sw { display: flex; }
 .sw i { width: 14px; height: 14px; border-radius: 50%; margin-left: -4px; border: 1.5px solid var(--chip); }
 .sw i:first-child { margin-left: 0; }
@@ -155,6 +163,7 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
 <div class="bar"><div class="wrap">
   <span class="name">Ateliê Ipiranga · Final 01</span>
   <div class="palettes" id="palettes" role="group" aria-label="Paleta de cores"></div>
+  <div class="dinsel" role="group" aria-label="Opção de jantar"><span class="label">jantar</span><span id="dinsel"></span></div>
 </div></div>
 
 <main class="wrap">
@@ -166,7 +175,7 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
         <div class="facts"><div><b>31,22</b><span class="label">m² privativos</span></div><div><b>2,50</b><span class="label">m pé-direito</span></div><div><b>5</b><span class="label">paletas</span></div><div><b>8</b><span class="label">vistas por paleta</span></div></div>
       </div>
     </div>
-    <img data-view="sala" alt="Sala com sofá de linho, canto alemão sob a janela, cozinha de freijó e arte sobre o sofá" width="1600" height="1067">
+    <img data-view="sala" alt="Sala com sofá de linho, jantar junto à janela, cozinha de freijó e arte sobre o sofá" width="1600" height="1067">
   </section>
 
   <section class="block" id="conceito">
@@ -178,7 +187,7 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
       <div><h3>Teto branco, sem rebaixo</h3><p>Tetos claros parecem mais altos. A sala mantém os 2,50 m livres; o forro de gesso fica só no banheiro.</p><a class="src" href="https://www.staff.uni-mainz.de/oberfeld/downloads/oberfeld_hecht_gamer_2010.pdf" target="_blank" rel="noopener">Oberfeld, Hecht &amp; Gamer, 2010</a></div>
       <div><h3>Janela livre, fundo iluminado</h3><p>A vista e a luz na parede oposta à janela ampliam o ambiente. A cortina fica recolhida na lateral e uma fita de LED lava o ripado de cima para baixo.</p><a class="src" href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11637840/" target="_blank" rel="noopener">Tural &amp; Tural, 2024</a></div>
       <div><h3>Uma peça por cômodo</h3><p>Em vez de móveis soltos, um volume contínuo de marcenaria: 4,21 m na sala (TV, cozinha e geladeira), cabeceira e armário no quarto 1, estante e armário no quarto 2.</p><span class="src">MKCA · Soek · Casa 100</span></div>
-      <div><h3>Flexibilidade sem mecanismo</h3><p>O daybed transforma o quarto 2 em estúdio ou quarto de hóspedes, e o banco-baú do jantar guarda o que não cabe nos armários.</p><a class="src" href="https://www.academia.edu/751324/" target="_blank" rel="noopener">Schneider &amp; Till, arq, 2005</a></div>
+      <div><h3>Flexibilidade sem mecanismo</h3><p>O daybed transforma o quarto 2 em estúdio ou quarto de hóspedes, e o jantar da sala se dobra ou se recolhe quando não está em uso.</p><a class="src" href="https://www.academia.edu/751324/" target="_blank" rel="noopener">Schneider &amp; Till, arq, 2005</a></div>
     </div>
   </section>
 
@@ -213,11 +222,12 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
     </div>
 
     <div class="room" id="sala">
-      <figure><img class="main" data-view="sala" alt="Sofá, canto alemão sob a janela e pendente sobre a mesa" width="1600" height="1067"></figure>
+      <figure><img class="main" data-view="sala" alt="Sofá, jantar junto à janela e pendente" width="1600" height="1067"></figure>
       <div>
         <h3>Estar e jantar</h3>
-        <p>Sofá de linho de 1,70 m na parede do quarto 2, sem chaise. O jantar virou um canto alemão sob a janela: banco-baú de freijó, mesa de 60 × 80 cm em pé central e uma cadeira de palhinha.</p>
-        <ul><li>Do sofá ao rack: 1,10 m livres</li><li>Pendente com base a 1,50 m e trilho de spots sobreposto</li><li>Cortina de linho do teto ao piso, recolhida na lateral</li></ul>
+        <p>Sofá de linho de 1,70 m na parede do quarto 2, sem chaise. O meio da sala fica livre entre o sofá e a TV; o jantar acontece junto à janela, em uma de três opções (escolha no topo da página).</p>
+        <p id="dintext"></p>
+        <ul><li>Pendente sobre o jantar e trilho de spots sobreposto</li><li>Cortina de linho do teto ao piso, recolhida na lateral</li></ul>
         <div class="thumbs" data-view="sala"></div>
       </div>
     </div>
@@ -226,7 +236,7 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
       <figure><img class="main" data-view="cozinha" alt="Cozinha linear de freijó com aéreos em laca e nicho de serviço" width="1600" height="1067"></figure>
       <div>
         <h3>Cozinha e serviço</h3>
-        <p>Cooktop de indução de 2 bocas, cuba de 50 cm e tampo de quartzo a 90 cm. O nicho de serviço, junto ao banheiro, fecha com portas de correr em palhinha, que deixam a lava e seca ventilar.</p>
+        <p>Cooktop vitrocerâmico de 2 bocas, cuba de 50 cm e tampo de quartzo a 90 cm. O nicho de serviço, junto ao banheiro, fecha com portas de correr em palhinha, que deixam a lava e seca ventilar.</p>
         <ul><li>Puxador cava e frestas de 3 mm em todas as portas</li><li>Rodapé recuado em preto: o móvel parece flutuar</li><li>Frente da bancada ≥ 0,90 m livre</li></ul>
         <div class="thumbs" data-view="cozinha"></div>
       </div>
@@ -299,7 +309,7 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
       <button class="tool" type="button" data-room="dorm2">Dormitório 2</button>
       <button class="tool" type="button" data-room="banho">Banho</button>
     </div>
-    <div class="viewer" id="viewer"><div class="status" id="status">Carregando modelo…</div><span class="hint label">cores sólidas · escala 1:1 em metros</span><div class="navchips" id="navchips" hidden></div><span class="hint label walk" id="walkhint" hidden>clique nas setas do piso para ir a outro cômodo · arraste para olhar · W A S D para andar</span></div>
+    <div class="viewer" id="viewer"><div class="status" id="status">Carregando modelo…</div><span class="hint label">cores sólidas · escala 1:1 em metros</span><div class="navchips" id="navchips" hidden></div><div class="vdin" id="vdin"></div><span class="hint label walk" id="walkhint" hidden>clique nas setas do piso para ir a outro cômodo · arraste para olhar · W A S D para andar</span></div>
   </section>
 
   <section class="block" id="catalogo">
@@ -363,6 +373,43 @@ const PALETTES = {"terra": {"label": "Terra Paulista", "swatches": ["#F2EDE4", "
 const ORDER = Object.keys(PALETTES);
 let current = "terra";
 try { const s = localStorage.getItem("atelie-palette"); if (ORDER.includes(s)) current = s; } catch (e) {}
+// opções de jantar: as vistas da sala, a planta e o modelo 3D mudam com a escolha
+const DINING = {
+  bancada: { tag: "A", label: "Bancada", text: "<b>Opção A · bancada na janela.</b> Bancada de freijó de 100 × 38 cm logo abaixo do peitoril (97 cm), com duas banquetas altas que encaixam embaixo. Come-se olhando a vista e o meio da sala nunca é ocupado." },
+  rebativel: { tag: "B", label: "Mesa rebatível", text: "<b>Opção B · mesa rebatível.</b> Painel de freijó sob a janela com tampo de 84 × 50 cm que abre sobre braços articulados. Fechada ocupa 6 cm de parede; aberta, recebe duas cadeiras de palhinha." },
+  centro: { tag: "C", label: "Mesa de centro", text: "<b>Opção C · mesa de centro elevatória.</b> Sem jantar fixo: o tampo da mesa de centro sobe de 40 para 63 cm para comer no sofá, e o banco-baú sob a janela vira canto de leitura." },
+};
+const DVIEWS = new Set(["sala", "estar", "isometrica", "planta_cotada"]);
+let dining = "rebativel";
+try { const s = localStorage.getItem("atelie-dining"); if (DINING[s]) dining = s; } catch (e) {}
+function imgSrc(p, v) { return DVIEWS.has(v) ? `img2/${p}_${v}__${dining}.jpg` : `img2/${p}_${v}.jpg`; }
+// enquanto uma imagem da opção não existe, cai na versão B e depois na antiga
+document.addEventListener("error", e => {
+  const img = e.target;
+  if (img.tagName !== "IMG" || !/__\w+\.jpg$/.test(img.src)) return;
+  img.src = /__rebativel\.jpg$/.test(img.src) ? img.src.replace(/__\w+\.jpg$/, ".jpg") : img.src.replace(/__\w+\.jpg$/, "__rebativel.jpg");
+}, true);
+const dinBox = document.getElementById("dinsel");
+Object.entries(DINING).forEach(([k, d]) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.dataset.din = k; b.innerHTML = `<b>${d.tag}</b>${d.label}`;
+  b.addEventListener("click", () => setDining(k));
+  dinBox.appendChild(b);
+});
+function setDining(k) {
+  dining = k;
+  try { localStorage.setItem("atelie-dining", k); } catch (e) {}
+  document.querySelectorAll("[data-din]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.din === k)));
+  document.getElementById("dintext").innerHTML = DINING[k].text;
+  refreshImages();
+  if (typeof loadDining === "function") loadDining(current);
+  if (typeof renderCatalog === "function") renderCatalog();
+}
+function refreshImages() {
+  document.querySelectorAll("img[data-view]").forEach(img => { img.src = imgSrc(current, img.dataset.view); });
+  document.querySelectorAll(".thumbs").forEach(box => box.querySelectorAll("button").forEach(b => { b.querySelector("img").src = imgSrc(b.dataset.p, box.dataset.view); }));
+  document.querySelectorAll(".palcard img").forEach(img => { img.src = imgSrc(img.closest("[data-p]").dataset.p, "estar"); });
+}
 
 const palBox = document.getElementById("palettes");
 ORDER.forEach(p => {
@@ -376,7 +423,7 @@ document.querySelectorAll(".thumbs").forEach(box => {
   ORDER.forEach(p => {
     const b = document.createElement("button");
     b.type = "button"; b.dataset.p = p;
-    b.innerHTML = `<img src="img2/${p}_${box.dataset.view}.jpg" alt="" loading="lazy">${PALETTES[p].label}`;
+    b.innerHTML = `<img src="${imgSrc(p, box.dataset.view)}" alt="" loading="lazy">${PALETTES[p].label}`;
     b.addEventListener("click", () => setPalette(p));
     box.appendChild(b);
   });
@@ -385,7 +432,7 @@ const grid = document.getElementById("palgrid");
 ORDER.forEach(p => {
   const b = document.createElement("button");
   b.className = "palcard"; b.type = "button"; b.dataset.p = p;
-  b.innerHTML = `<img src="img2/${p}_estar.jpg" alt="" loading="lazy"><div class="chips">${PALETTES[p].swatches.map(c => `<i style="background:${c}" title="${c}"></i>`).join("")}</div><h3>${PALETTES[p].label}</h3><p>${PALETTES[p].why}</p>`;
+  b.innerHTML = `<img src="${imgSrc(p, "estar")}" alt="" loading="lazy"><div class="chips">${PALETTES[p].swatches.map(c => `<i style="background:${c}" title="${c}"></i>`).join("")}</div><h3>${PALETTES[p].label}</h3><p>${PALETTES[p].why}</p>`;
   b.addEventListener("click", () => setPalette(p));
   grid.appendChild(b);
 });
@@ -393,7 +440,7 @@ ORDER.forEach(p => {
 function setPalette(p) {
   current = p;
   try { localStorage.setItem("atelie-palette", p); } catch (e) {}
-  document.querySelectorAll("img[data-view]").forEach(img => { img.src = `img2/${p}_${img.dataset.view}.jpg`; });
+  document.querySelectorAll("img[data-view]").forEach(img => { img.src = imgSrc(p, img.dataset.view); });
   document.querySelectorAll("[data-p]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.p === p)));
   loadModel(p);
 }
@@ -425,6 +472,7 @@ const ROOM_LABEL = { sala: "Sala", cozinha: "Cozinha", corredor: "Corredor", dor
 let room = null, arrows = null;
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
 const cache = {};
+
 const CENTER = new THREE.Vector3(2.1, 0.8, 3.8);
 function initViewer() {
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -603,26 +651,56 @@ function applyCeiling() {
   if (!model) return;
   model.traverse(o => { if (/^(Teto|Sanca)/.test(o.name)) o.visible = showCeiling || walking; });
 }
-function loadModel(p) {
-  if (!renderer) return;
-  const show = gltf => {
-    if (current !== p) return;
-    if (model) scene.remove(model);
-    model = gltf.scene; scene.add(model); applyCeiling(); status.hidden = true;
-    model.traverse(o => [].concat(o.material || []).forEach(m => {
-      if (/^Vidro/.test(m.name)) Object.assign(m, { transparent: true, opacity: m.name === "Vidro" ? 0.12 : 0.45, metalness: 0, roughness: 0.05, depthWrite: false });
-    }));
-  };
-  if (cache[p]) return show(cache[p]);
-  status.hidden = false; status.textContent = "Carregando modelo…";
-  const fail = err => { console.error(err); status.hidden = false; status.textContent = "Não foi possível carregar o modelo 3D. Recarregue a página para tentar de novo."; };
-  fetch(`models2/${p}.json`).then(r => r.json()).then(json => {
-    // o frame bloqueia URLs data:, então o buffer embutido vira um GLB montado em memória
+function fetchGLTF(url) {
+  if (cache[url]) return cache[url];
+  // o frame bloqueia URLs data:, então o buffer embutido vira um GLB montado em memória
+  return cache[url] = fetch(url).then(r => r.json()).then(json => new Promise((ok, bad) => {
     const b64 = json.buffers[0].uri.split(",")[1];
     const bin = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
     delete json.buffers[0].uri;
-    new THREE.GLTFLoader().parse(toGLB(json, bin), "", g => { cache[p] = g; show(g); }, fail);
+    new THREE.GLTFLoader().parse(toGLB(json, bin), "", g => {
+      g.scene.traverse(o => [].concat(o.material || []).forEach(m => {
+        if (/^Vidro/.test(m.name)) Object.assign(m, { transparent: true, opacity: m.name === "Vidro" ? 0.12 : 0.45, metalness: 0, roughness: 0.05, depthWrite: false });
+      }));
+      ok(g);
+    }, bad);
+  })).catch(e => { delete cache[url]; throw e; });
+}
+const fail = err => { console.error(err); status.hidden = false; status.textContent = "Não foi possível carregar o modelo 3D. Recarregue a página para tentar de novo."; };
+// apartamento sem o jantar + a peça de jantar escolhida (A, B aberta/fechada ou C)
+let dmodel = null, tableOpen = true;
+function loadModel(p) {
+  if (!renderer) return;
+  status.hidden = false; status.textContent = "Carregando modelo…";
+  fetchGLTF(`models3/${p}_base.json`).then(g => {
+    if (current !== p) return;
+    if (model) scene.remove(model);
+    model = g.scene; scene.add(model); applyCeiling(); status.hidden = true;
   }).catch(fail);
+  loadDining(p);
+}
+function loadDining(p) {
+  if (!renderer) return;
+  const key = dining === "rebativel" && !tableOpen ? "rebativel_fechada" : dining;
+  syncDinButtons();
+  fetchGLTF(`models3/${p}_${key}.json`).then(g => {
+    if (current !== p) return;
+    if (dmodel) scene.remove(dmodel);
+    dmodel = g.scene; scene.add(dmodel);
+  }).catch(fail);
+}
+const vdin = document.getElementById("vdin");
+vdin.innerHTML = Object.entries(DINING).map(([k, d]) => `<button type="button" data-vdin="${k}">${d.tag} · ${d.label}</button>`).join("") +
+  `<button type="button" id="mesaopen"></button>`;
+vdin.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.id === "mesaopen") { tableOpen = !tableOpen; loadDining(current); }
+  else setDining(b.dataset.vdin);
+});
+function syncDinButtons() {
+  vdin.querySelectorAll("[data-vdin]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.vdin === dining)));
+  const m = document.getElementById("mesaopen");
+  m.hidden = dining !== "rebativel"; m.textContent = tableOpen ? "Fechar mesa" : "Abrir mesa";
 }
 function toGLB(json, bin) {
   const enc = new TextEncoder().encode(JSON.stringify(json));
@@ -649,7 +727,7 @@ if (window.THREE && THREE.GLTFLoader && THREE.OrbitControls) {
 setPalette(current);
 
 /* ---------- catálogo de móveis e eletrodomésticos ---------- */
-const CATALOG = [{"id": "sofa", "name": "Sofá 2 lugares", "room": "Sala", "type": "Móvel", "note": "Linho, com pés e almofadas soltas", "face": "s", "w": 1.724, "d": 0.85, "h": 0.843, "z0": 0.0}, {"id": "rack", "name": "Rack suspenso", "room": "Sala", "type": "Marcenaria", "note": "Laca na cor da paleta, sem pés", "face": "n", "w": 1.165, "d": 0.39, "h": 0.354, "z0": 0.246}, {"id": "ripado", "name": "Painel ripado com LED", "room": "Sala", "type": "Marcenaria", "note": "Ripas de madeira com perfil de LED no topo", "face": "n", "w": 1.665, "d": 0.05, "h": 2.5, "z0": 0.0}, {"id": "prateleira", "name": "Prateleira", "room": "Sala", "type": "Marcenaria", "note": "Madeira maciça", "face": "n", "w": 1.165, "d": 0.255, "h": 0.03, "z0": 1.75}, {"id": "tv_sala", "name": "TV 43\"", "room": "Sala", "type": "Eletrodoméstico", "note": "Fixada no painel ripado", "face": "n", "w": 0.96, "d": 0.033, "h": 0.56, "z0": 0.97}, {"id": "mesa", "name": "Mesa de jantar", "room": "Sala", "type": "Móvel", "note": "", "face": "e", "w": 0.8, "d": 0.6, "h": 0.75, "z0": 0.0}, {"id": "banco", "name": "Banco-baú (canto alemão)", "room": "Sala", "type": "Marcenaria", "note": "Assento com tampa e baú interno", "face": "e", "w": 1.02, "d": 0.415, "h": 0.943, "z0": 0.0}, {"id": "cadeira", "name": "Cadeira", "room": "Sala", "type": "Móvel", "note": "", "face": "w", "w": 0.478, "d": 0.497, "h": 0.86, "z0": 0.0}, {"id": "pendente", "name": "Pendente", "room": "Sala", "type": "Iluminação", "note": "Sobre a mesa", "face": "e", "w": 0.38, "d": 0.38, "h": 0.838, "z0": 1.662}, {"id": "cozinha", "name": "Cozinha planejada", "room": "Cozinha", "type": "Marcenaria", "note": "Armários inferiores, bancada de quartzo e aéreos até o teto", "face": "n", "w": 1.845, "d": 0.62, "h": 2.5, "z0": 0.0}, {"id": "cooktop", "name": "Cooktop vitrocerâmico, 2 bocas", "room": "Cozinha", "type": "Eletrodoméstico", "note": "Embutido na bancada", "face": "n", "w": 0.3, "d": 0.42, "h": 0.008, "z0": 0.9}, {"id": "cuba", "name": "Cuba inox e torneira gourmet", "room": "Cozinha", "type": "Metais", "note": "Cuba de 50 cm", "face": "n", "w": 0.5, "d": 0.465, "h": 0.722, "z0": 0.7}, {"id": "depurador", "name": "Depurador", "room": "Cozinha", "type": "Eletrodoméstico", "note": "Embutido sob o armário aéreo", "face": "n", "w": 0.4, "d": 0.28, "h": 0.02, "z0": 1.53}, {"id": "geladeira", "name": "Geladeira", "room": "Cozinha", "type": "Eletrodoméstico", "note": "", "face": "n", "w": 0.62, "d": 0.63, "h": 1.86, "z0": 0.0}, {"id": "torre", "name": "Torre da geladeira", "room": "Cozinha", "type": "Marcenaria", "note": "Laterais e aéreo sobre a geladeira", "face": "n", "w": 0.7, "d": 0.67, "h": 2.5, "z0": 0.0}, {"id": "lavaseca", "name": "Lava e seca", "room": "Lavanderia", "type": "Eletrodoméstico", "note": "Abertura frontal, sob a bancada", "face": "s", "w": 0.6, "d": 0.6, "h": 0.85, "z0": 0.0}, {"id": "tanque", "name": "Tanque", "room": "Lavanderia", "type": "Louças", "note": "", "face": "s", "w": 0.61, "d": 0.5, "h": 0.801, "z0": 0.1}, {"id": "portas_lav", "name": "Portas de correr de palhinha", "room": "Lavanderia", "type": "Marcenaria", "note": "Escondem a lavanderia", "face": "s", "w": 1.3, "d": 0.163, "h": 2.5, "z0": 0.0}, {"id": "cama", "name": "Cama de casal com roupa de cama", "room": "Dormitório 1", "type": "Móvel", "note": "Colchão de casal", "face": "s", "w": 1.485, "d": 1.937, "h": 1.053, "z0": 0.0}, {"id": "cabeceira", "name": "Painel com cabeceira estofada", "room": "Dormitório 1", "type": "Marcenaria", "note": "Seis gomos estofados", "face": "s", "w": 2.34, "d": 0.08, "h": 1.3, "z0": 0.0}, {"id": "criado", "name": "Criado-mudo suspenso", "room": "Dormitório 1", "type": "Marcenaria", "note": "Com gaveta e LED embaixo, um de cada lado", "face": "s", "w": 0.4, "d": 0.37, "h": 0.164, "z0": 0.416}, {"id": "arandela", "name": "Arandela articulada", "room": "Dormitório 1", "type": "Iluminação", "note": "Uma de cada lado da cama", "face": "s", "w": 0.12, "d": 0.34, "h": 0.14, "z0": 1.02}, {"id": "gr_d1", "name": "Guarda-roupa de correr", "room": "Dormitório 1", "type": "Marcenaria", "note": "Portas de correr, até o teto", "face": "w", "w": 1.8, "d": 0.6, "h": 2.5, "z0": 0.0}, {"id": "tv_d1", "name": "TV do quarto", "room": "Dormitório 1", "type": "Eletrodoméstico", "note": "Na parede em frente à cama", "face": "n", "w": 0.9, "d": 0.03, "h": 0.51, "z0": 1.05}, {"id": "split", "name": "Ar-condicionado split", "room": "Dormitório 1", "type": "Eletrodoméstico", "note": "Unidade interna", "face": "s", "w": 0.82, "d": 0.215, "h": 0.29, "z0": 2.15}, {"id": "daybed", "name": "Sofá-cama (daybed) com gavetas", "room": "Dormitório 2", "type": "Marcenaria", "note": "Solteiro, vira sofá de dia", "face": "s", "w": 1.941, "d": 0.946, "h": 0.983, "z0": 0.0}, {"id": "escrivaninha", "name": "Escrivaninha", "room": "Dormitório 2", "type": "Marcenaria", "note": "Fixada na parede", "face": "e", "w": 1.0, "d": 0.55, "h": 0.13, "z0": 0.62}, {"id": "cadeira_d2", "name": "Cadeira da escrivaninha", "room": "Dormitório 2", "type": "Móvel", "note": "", "face": "w", "w": 0.544, "d": 0.558, "h": 0.86, "z0": 0.0}, {"id": "gr_d2", "name": "Guarda-roupa", "room": "Dormitório 2", "type": "Marcenaria", "note": "Em laca", "face": "n", "w": 1.0, "d": 0.575, "h": 2.5, "z0": 0.0}, {"id": "estante", "name": "Estante aberta", "room": "Dormitório 2", "type": "Marcenaria", "note": "Nichos para livros e objetos", "face": "n", "w": 1.0, "d": 0.3, "h": 2.002, "z0": 0.0}, {"id": "luminaria", "name": "Luminária de mesa articulada", "room": "Dormitório 2", "type": "Iluminação", "note": "", "face": "e", "w": 0.378, "d": 0.124, "h": 0.55, "z0": 0.75}, {"id": "gabinete", "name": "Gabinete suspenso com cuba de apoio", "room": "Banho", "type": "Marcenaria", "note": "Bancada de quartzo", "face": "w", "w": 0.62, "d": 0.472, "h": 0.5, "z0": 0.65}, {"id": "espelho", "name": "Espelho com LED", "room": "Banho", "type": "Acessório", "note": "Iluminação indireta", "face": "w", "w": 0.6, "d": 0.024, "h": 0.85, "z0": 1.2}, {"id": "vaso", "name": "Bacia sanitária com caixa acoplada", "room": "Banho", "type": "Louças", "note": "", "face": "w", "w": 0.36, "d": 0.56, "h": 0.805, "z0": 0.001}, {"id": "box", "name": "Box de vidro até o forro", "room": "Banho", "type": "Vidro", "note": "Porta de correr", "face": "s", "w": 0.88, "d": 0.05, "h": 2.3, "z0": 0.0}, {"id": "chuveiro", "name": "Chuveiro de teto", "room": "Banho", "type": "Metais", "note": "Misturador na parede do box", "face": "s", "w": 0.24, "d": 0.24, "h": 0.012, "z0": 2.288}];
+const CATALOG = [{"id": "sofa", "name": "Sofá 2 lugares", "room": "Sala", "type": "Móvel", "note": "Linho, com pés e almofadas soltas", "face": "s", "opts": "", "w": 1.724, "d": 0.85, "h": 0.843, "z0": 0.0}, {"id": "rack", "name": "Rack suspenso", "room": "Sala", "type": "Marcenaria", "note": "Laca na cor da paleta, sem pés", "face": "n", "opts": "", "w": 1.165, "d": 0.39, "h": 0.354, "z0": 0.246}, {"id": "ripado", "name": "Painel ripado com LED", "room": "Sala", "type": "Marcenaria", "note": "Ripas de madeira com perfil de LED no topo", "face": "n", "opts": "", "w": 1.665, "d": 0.05, "h": 2.5, "z0": 0.0}, {"id": "prateleira", "name": "Prateleira", "room": "Sala", "type": "Marcenaria", "note": "Madeira maciça", "face": "n", "opts": "", "w": 1.165, "d": 0.255, "h": 0.03, "z0": 1.75}, {"id": "tv_sala", "name": "TV 43\"", "room": "Sala", "type": "Eletrodoméstico", "note": "Fixada no painel ripado", "face": "n", "opts": "", "w": 0.96, "d": 0.033, "h": 0.56, "z0": 0.97}, {"id": "mesa_rebativel", "name": "Mesa rebatível de parede", "room": "Sala", "type": "Marcenaria", "note": "Painel de freijó com tampo que abre sobre braços articulados; fechada ocupa 6 cm", "face": "e", "opts": "B", "w": 0.92, "d": 0.525, "h": 0.96, "z0": 0.0}, {"id": "cadeira", "name": "Cadeira", "room": "Sala", "type": "Móvel", "note": "Freijó com assento de palhinha", "face": "w", "opts": "B", "w": 0.44, "d": 0.46, "h": 0.86, "z0": 0.0}, {"id": "mesa_centro", "name": "Mesa de centro redonda", "room": "Sala", "type": "Móvel", "note": "", "face": "s", "opts": "AB", "w": 0.5, "d": 0.5, "h": 0.39, "z0": 0.0}, {"id": "bancada_ref", "name": "Bancada de refeição na janela", "room": "Sala", "type": "Marcenaria", "note": "Presa na parede abaixo do peitoril, com mãos-francesas", "face": "e", "opts": "A", "w": 1.0, "d": 0.38, "h": 0.34, "z0": 0.63}, {"id": "banqueta", "name": "Banqueta alta", "room": "Sala", "type": "Móvel", "note": "Assento de palhinha e descanso de pés", "face": "e", "opts": "A", "w": 0.37, "d": 0.37, "h": 0.664, "z0": 0.0}, {"id": "mesa_elevatoria", "name": "Mesa de centro com tampo elevatório", "room": "Sala", "type": "Móvel", "note": "Tampo sobe de 40 para 63 cm para refeições no sofá", "face": "s", "opts": "C", "w": 0.9, "d": 0.62, "h": 0.63, "z0": 0.0}, {"id": "banco", "name": "Banco-baú sob a janela", "room": "Sala", "type": "Marcenaria", "note": "Assento com tampa e baú interno; vira canto de leitura", "face": "e", "opts": "C", "w": 1.02, "d": 0.415, "h": 0.943, "z0": 0.0}, {"id": "pendente", "name": "Pendente", "room": "Sala", "type": "Iluminação", "note": "Sobre a mesa", "face": "e", "opts": "ABC", "w": 0.38, "d": 0.38, "h": 0.838, "z0": 1.662}, {"id": "cozinha", "name": "Cozinha planejada", "room": "Cozinha", "type": "Marcenaria", "note": "Armários inferiores, bancada de quartzo e aéreos até o teto", "face": "n", "opts": "", "w": 1.845, "d": 0.62, "h": 2.5, "z0": 0.0}, {"id": "cooktop", "name": "Cooktop vitrocerâmico, 2 bocas", "room": "Cozinha", "type": "Eletrodoméstico", "note": "Embutido na bancada", "face": "n", "opts": "", "w": 0.3, "d": 0.42, "h": 0.008, "z0": 0.9}, {"id": "cuba", "name": "Cuba inox e torneira gourmet", "room": "Cozinha", "type": "Metais", "note": "Cuba de 50 cm", "face": "n", "opts": "", "w": 0.5, "d": 0.465, "h": 0.722, "z0": 0.7}, {"id": "depurador", "name": "Depurador", "room": "Cozinha", "type": "Eletrodoméstico", "note": "Embutido sob o armário aéreo", "face": "n", "opts": "", "w": 0.4, "d": 0.28, "h": 0.02, "z0": 1.53}, {"id": "geladeira", "name": "Geladeira", "room": "Cozinha", "type": "Eletrodoméstico", "note": "", "face": "n", "opts": "", "w": 0.62, "d": 0.63, "h": 1.86, "z0": 0.0}, {"id": "torre", "name": "Torre da geladeira", "room": "Cozinha", "type": "Marcenaria", "note": "Laterais e aéreo sobre a geladeira", "face": "n", "opts": "", "w": 0.7, "d": 0.67, "h": 2.5, "z0": 0.0}, {"id": "lavaseca", "name": "Lava e seca", "room": "Lavanderia", "type": "Eletrodoméstico", "note": "Abertura frontal, sob a bancada", "face": "s", "opts": "", "w": 0.6, "d": 0.6, "h": 0.85, "z0": 0.0}, {"id": "tanque", "name": "Tanque", "room": "Lavanderia", "type": "Louças", "note": "", "face": "s", "opts": "", "w": 0.61, "d": 0.5, "h": 0.801, "z0": 0.1}, {"id": "portas_lav", "name": "Portas de correr de palhinha", "room": "Lavanderia", "type": "Marcenaria", "note": "Escondem a lavanderia", "face": "s", "opts": "", "w": 1.3, "d": 0.163, "h": 2.5, "z0": 0.0}, {"id": "cama", "name": "Cama de casal com roupa de cama", "room": "Dormitório 1", "type": "Móvel", "note": "Colchão de casal", "face": "s", "opts": "", "w": 1.485, "d": 1.937, "h": 1.053, "z0": 0.0}, {"id": "cabeceira", "name": "Painel com cabeceira estofada", "room": "Dormitório 1", "type": "Marcenaria", "note": "Seis gomos estofados", "face": "s", "opts": "", "w": 2.34, "d": 0.08, "h": 1.3, "z0": 0.0}, {"id": "criado", "name": "Criado-mudo suspenso", "room": "Dormitório 1", "type": "Marcenaria", "note": "Com gaveta e LED embaixo, um de cada lado", "face": "s", "opts": "", "w": 0.4, "d": 0.37, "h": 0.164, "z0": 0.416}, {"id": "arandela", "name": "Arandela articulada", "room": "Dormitório 1", "type": "Iluminação", "note": "Uma de cada lado da cama", "face": "s", "opts": "", "w": 0.12, "d": 0.34, "h": 0.14, "z0": 1.02}, {"id": "gr_d1", "name": "Guarda-roupa de correr", "room": "Dormitório 1", "type": "Marcenaria", "note": "Portas de correr, até o teto", "face": "w", "opts": "", "w": 1.8, "d": 0.6, "h": 2.5, "z0": 0.0}, {"id": "tv_d1", "name": "TV do quarto", "room": "Dormitório 1", "type": "Eletrodoméstico", "note": "Na parede em frente à cama", "face": "n", "opts": "", "w": 0.9, "d": 0.03, "h": 0.51, "z0": 1.05}, {"id": "split", "name": "Ar-condicionado split", "room": "Dormitório 1", "type": "Eletrodoméstico", "note": "Unidade interna", "face": "s", "opts": "", "w": 0.82, "d": 0.215, "h": 0.29, "z0": 2.15}, {"id": "daybed", "name": "Sofá-cama (daybed) com gavetas", "room": "Dormitório 2", "type": "Marcenaria", "note": "Solteiro, vira sofá de dia", "face": "s", "opts": "", "w": 1.941, "d": 0.946, "h": 0.983, "z0": 0.0}, {"id": "escrivaninha", "name": "Escrivaninha", "room": "Dormitório 2", "type": "Marcenaria", "note": "Fixada na parede", "face": "e", "opts": "", "w": 1.0, "d": 0.55, "h": 0.13, "z0": 0.62}, {"id": "cadeira_d2", "name": "Cadeira da escrivaninha", "room": "Dormitório 2", "type": "Móvel", "note": "", "face": "w", "opts": "", "w": 0.544, "d": 0.558, "h": 0.86, "z0": 0.0}, {"id": "gr_d2", "name": "Guarda-roupa", "room": "Dormitório 2", "type": "Marcenaria", "note": "Em laca", "face": "n", "opts": "", "w": 1.0, "d": 0.575, "h": 2.5, "z0": 0.0}, {"id": "estante", "name": "Estante aberta", "room": "Dormitório 2", "type": "Marcenaria", "note": "Nichos para livros e objetos", "face": "n", "opts": "", "w": 1.0, "d": 0.3, "h": 2.002, "z0": 0.0}, {"id": "luminaria", "name": "Luminária de mesa articulada", "room": "Dormitório 2", "type": "Iluminação", "note": "", "face": "e", "opts": "", "w": 0.378, "d": 0.124, "h": 0.55, "z0": 0.75}, {"id": "gabinete", "name": "Gabinete suspenso com cuba de apoio", "room": "Banho", "type": "Marcenaria", "note": "Bancada de quartzo", "face": "w", "opts": "", "w": 0.62, "d": 0.472, "h": 0.5, "z0": 0.65}, {"id": "espelho", "name": "Espelho com LED", "room": "Banho", "type": "Acessório", "note": "Iluminação indireta", "face": "w", "opts": "", "w": 0.6, "d": 0.024, "h": 0.85, "z0": 1.2}, {"id": "vaso", "name": "Bacia sanitária com caixa acoplada", "room": "Banho", "type": "Louças", "note": "", "face": "w", "opts": "", "w": 0.36, "d": 0.56, "h": 0.805, "z0": 0.001}, {"id": "box", "name": "Box de vidro até o forro", "room": "Banho", "type": "Vidro", "note": "Porta de correr", "face": "s", "opts": "", "w": 0.88, "d": 0.05, "h": 2.3, "z0": 0.0}, {"id": "chuveiro", "name": "Chuveiro de teto", "room": "Banho", "type": "Metais", "note": "Misturador na parede do box", "face": "s", "opts": "", "w": 0.24, "d": 0.24, "h": 0.012, "z0": 2.288}];
 const catGrid = document.getElementById("catgrid"), catFilter = document.getElementById("catfilter");
 const cm = v => Math.round(v * 100).toLocaleString("pt-BR");
 let catRoom = "Todos";
@@ -662,13 +740,15 @@ function dimsHTML(it) {
 function renderCatalog() {
   const rooms = ["Todos", ...new Set(CATALOG.map(i => i.room))];
   catFilter.innerHTML = rooms.map(r => `<button class="tool" type="button" data-cat="${r}" aria-pressed="${r === catRoom}">${r}</button>`).join("");
-  catGrid.innerHTML = CATALOG.filter(i => catRoom === "Todos" || i.room === catRoom).map(it => `
+  // peças do jantar só aparecem na opção escolhida
+  const tag = DINING[dining].tag;
+  catGrid.innerHTML = CATALOG.filter(i => (catRoom === "Todos" || i.room === catRoom) && (!i.opts || i.opts.includes(tag))).map(it => `
     <article class="item">
       <button class="itemimg" type="button" data-item="${it.id}" aria-label="Ver ${it.name} em 3D">
         <img src="img2/cat_${it.id}.webp" alt="" loading="lazy" width="960" height="760"><span class="label">ver em 3D</span>
       </button>
       <div class="itemtxt">
-        <span class="label">${it.room} · ${it.type}</span>
+        <span class="label">${it.room}${it.opts && it.opts.length < 3 ? ` · opção ${it.opts.split("").join("/")}` : ""} · ${it.type}</span>
         <h3>${it.name}</h3>
         ${dimsHTML(it)}
         ${it.note ? `<p>${it.note}</p>` : ""}
@@ -769,4 +849,5 @@ function openItem(id) {
 document.getElementById("itemclose").addEventListener("click", () => dlg.close());
 dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
 
+setDining(dining);
 </script>

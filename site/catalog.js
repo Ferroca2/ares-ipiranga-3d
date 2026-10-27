@@ -12,13 +12,15 @@ function dimsHTML(it) {
 function renderCatalog() {
   const rooms = ["Todos", ...new Set(CATALOG.map(i => i.room))];
   catFilter.innerHTML = rooms.map(r => `<button class="tool" type="button" data-cat="${r}" aria-pressed="${r === catRoom}">${r}</button>`).join("");
-  catGrid.innerHTML = CATALOG.filter(i => catRoom === "Todos" || i.room === catRoom).map(it => `
+  // peças do jantar só aparecem na opção escolhida
+  const tag = DINING[dining].tag;
+  catGrid.innerHTML = CATALOG.filter(i => (catRoom === "Todos" || i.room === catRoom) && (!i.opts || i.opts.includes(tag))).map(it => `
     <article class="item">
       <button class="itemimg" type="button" data-item="${it.id}" aria-label="Ver ${it.name} em 3D">
         <img src="img2/cat_${it.id}.webp" alt="" loading="lazy" width="960" height="760"><span class="label">ver em 3D</span>
       </button>
       <div class="itemtxt">
-        <span class="label">${it.room} · ${it.type}</span>
+        <span class="label">${it.room}${it.opts && it.opts.length < 3 ? ` · opção ${it.opts.split("").join("/")}` : ""} · ${it.type}</span>
         <h3>${it.name}</h3>
         ${dimsHTML(it)}
         ${it.note ? `<p>${it.note}</p>` : ""}

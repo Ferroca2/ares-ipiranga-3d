@@ -35,6 +35,14 @@ a { color: var(--pen); }
 .pal { display: flex; align-items: center; gap: 8px; border: 1px solid var(--rule); background: var(--chip); color: var(--ink); border-radius: 999px; padding: 6px 12px 6px 6px; font: 500 13px/1 var(--body); cursor: pointer; }
 .pal[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
 .pal:focus-visible, .thumbs button:focus-visible, .tool:focus-visible { outline: 2px solid var(--pen); outline-offset: 2px; }
+.dinsel { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.dinsel button { border: 1px solid var(--rule); background: var(--chip); color: var(--ink); border-radius: 999px; padding: 6px 11px; font: 500 13px/1 var(--body); cursor: pointer; }
+.dinsel button[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.dinsel button b { color: var(--pen); margin-right: 4px; }
+.vdin { position: absolute; right: 12px; bottom: 34px; display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; max-width: calc(100% - 24px); }
+.vdin button { border: 0; border-radius: 999px; background: rgba(20,21,23,.72); color: #fff; font: 600 12.5px/1 var(--body); padding: 8px 11px; cursor: pointer; }
+.vdin button[aria-pressed="true"] { background: #2B55C8; }
+.vdin button[hidden] { display: none; }
 .sw { display: flex; }
 .sw i { width: 14px; height: 14px; border-radius: 50%; margin-left: -4px; border: 1.5px solid var(--chip); }
 .sw i:first-child { margin-left: 0; }
@@ -155,6 +163,7 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
 <div class="bar"><div class="wrap">
   <span class="name">Ateliê Ipiranga · Final 01</span>
   <div class="palettes" id="palettes" role="group" aria-label="Paleta de cores"></div>
+  <div class="dinsel" role="group" aria-label="Opção de jantar"><span class="label">jantar</span><span id="dinsel"></span></div>
 </div></div>
 
 <main class="wrap">
@@ -166,7 +175,7 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
         <div class="facts"><div><b>31,22</b><span class="label">m² privativos</span></div><div><b>2,50</b><span class="label">m pé-direito</span></div><div><b>5</b><span class="label">paletas</span></div><div><b>8</b><span class="label">vistas por paleta</span></div></div>
       </div>
     </div>
-    <img data-view="sala" alt="Sala com sofá de linho, canto alemão sob a janela, cozinha de freijó e arte sobre o sofá" width="1600" height="1067">
+    <img data-view="sala" alt="Sala com sofá de linho, jantar junto à janela, cozinha de freijó e arte sobre o sofá" width="1600" height="1067">
   </section>
 
   <section class="block" id="conceito">
@@ -178,7 +187,7 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
       <div><h3>Teto branco, sem rebaixo</h3><p>Tetos claros parecem mais altos. A sala mantém os 2,50 m livres; o forro de gesso fica só no banheiro.</p><a class="src" href="https://www.staff.uni-mainz.de/oberfeld/downloads/oberfeld_hecht_gamer_2010.pdf" target="_blank" rel="noopener">Oberfeld, Hecht &amp; Gamer, 2010</a></div>
       <div><h3>Janela livre, fundo iluminado</h3><p>A vista e a luz na parede oposta à janela ampliam o ambiente. A cortina fica recolhida na lateral e uma fita de LED lava o ripado de cima para baixo.</p><a class="src" href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11637840/" target="_blank" rel="noopener">Tural &amp; Tural, 2024</a></div>
       <div><h3>Uma peça por cômodo</h3><p>Em vez de móveis soltos, um volume contínuo de marcenaria: 4,21 m na sala (TV, cozinha e geladeira), cabeceira e armário no quarto 1, estante e armário no quarto 2.</p><span class="src">MKCA · Soek · Casa 100</span></div>
-      <div><h3>Flexibilidade sem mecanismo</h3><p>O daybed transforma o quarto 2 em estúdio ou quarto de hóspedes, e o banco-baú do jantar guarda o que não cabe nos armários.</p><a class="src" href="https://www.academia.edu/751324/" target="_blank" rel="noopener">Schneider &amp; Till, arq, 2005</a></div>
+      <div><h3>Flexibilidade sem mecanismo</h3><p>O daybed transforma o quarto 2 em estúdio ou quarto de hóspedes, e o jantar da sala se dobra ou se recolhe quando não está em uso.</p><a class="src" href="https://www.academia.edu/751324/" target="_blank" rel="noopener">Schneider &amp; Till, arq, 2005</a></div>
     </div>
   </section>
 
@@ -213,11 +222,12 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
     </div>
 
     <div class="room" id="sala">
-      <figure><img class="main" data-view="sala" alt="Sofá, canto alemão sob a janela e pendente sobre a mesa" width="1600" height="1067"></figure>
+      <figure><img class="main" data-view="sala" alt="Sofá, jantar junto à janela e pendente" width="1600" height="1067"></figure>
       <div>
         <h3>Estar e jantar</h3>
-        <p>Sofá de linho de 1,70 m na parede do quarto 2, sem chaise. O jantar virou um canto alemão sob a janela: banco-baú de freijó, mesa de 60 × 80 cm em pé central e uma cadeira de palhinha.</p>
-        <ul><li>Do sofá ao rack: 1,10 m livres</li><li>Pendente com base a 1,50 m e trilho de spots sobreposto</li><li>Cortina de linho do teto ao piso, recolhida na lateral</li></ul>
+        <p>Sofá de linho de 1,70 m na parede do quarto 2, sem chaise. O meio da sala fica livre entre o sofá e a TV; o jantar acontece junto à janela, em uma de três opções (escolha no topo da página).</p>
+        <p id="dintext"></p>
+        <ul><li>Pendente sobre o jantar e trilho de spots sobreposto</li><li>Cortina de linho do teto ao piso, recolhida na lateral</li></ul>
         <div class="thumbs" data-view="sala"></div>
       </div>
     </div>
@@ -226,7 +236,7 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
       <figure><img class="main" data-view="cozinha" alt="Cozinha linear de freijó com aéreos em laca e nicho de serviço" width="1600" height="1067"></figure>
       <div>
         <h3>Cozinha e serviço</h3>
-        <p>Cooktop de indução de 2 bocas, cuba de 50 cm e tampo de quartzo a 90 cm. O nicho de serviço, junto ao banheiro, fecha com portas de correr em palhinha, que deixam a lava e seca ventilar.</p>
+        <p>Cooktop vitrocerâmico de 2 bocas, cuba de 50 cm e tampo de quartzo a 90 cm. O nicho de serviço, junto ao banheiro, fecha com portas de correr em palhinha, que deixam a lava e seca ventilar.</p>
         <ul><li>Puxador cava e frestas de 3 mm em todas as portas</li><li>Rodapé recuado em preto: o móvel parece flutuar</li><li>Frente da bancada ≥ 0,90 m livre</li></ul>
         <div class="thumbs" data-view="cozinha"></div>
       </div>
@@ -299,7 +309,7 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
       <button class="tool" type="button" data-room="dorm2">Dormitório 2</button>
       <button class="tool" type="button" data-room="banho">Banho</button>
     </div>
-    <div class="viewer" id="viewer"><div class="status" id="status">Carregando modelo…</div><span class="hint label">cores sólidas · escala 1:1 em metros</span><div class="navchips" id="navchips" hidden></div><span class="hint label walk" id="walkhint" hidden>clique nas setas do piso para ir a outro cômodo · arraste para olhar · W A S D para andar</span></div>
+    <div class="viewer" id="viewer"><div class="status" id="status">Carregando modelo…</div><span class="hint label">cores sólidas · escala 1:1 em metros</span><div class="navchips" id="navchips" hidden></div><div class="vdin" id="vdin"></div><span class="hint label walk" id="walkhint" hidden>clique nas setas do piso para ir a outro cômodo · arraste para olhar · W A S D para andar</span></div>
   </section>
 
   <section class="block" id="catalogo">
@@ -363,6 +373,43 @@ const PALETTES = __PALETTES__;
 const ORDER = Object.keys(PALETTES);
 let current = "terra";
 try { const s = localStorage.getItem("atelie-palette"); if (ORDER.includes(s)) current = s; } catch (e) {}
+// opções de jantar: as vistas da sala, a planta e o modelo 3D mudam com a escolha
+const DINING = {
+  bancada: { tag: "A", label: "Bancada", text: "<b>Opção A · bancada na janela.</b> Bancada de freijó de 100 × 38 cm logo abaixo do peitoril (97 cm), com duas banquetas altas que encaixam embaixo. Come-se olhando a vista e o meio da sala nunca é ocupado." },
+  rebativel: { tag: "B", label: "Mesa rebatível", text: "<b>Opção B · mesa rebatível.</b> Painel de freijó sob a janela com tampo de 84 × 50 cm que abre sobre braços articulados. Fechada ocupa 6 cm de parede; aberta, recebe duas cadeiras de palhinha." },
+  centro: { tag: "C", label: "Mesa de centro", text: "<b>Opção C · mesa de centro elevatória.</b> Sem jantar fixo: o tampo da mesa de centro sobe de 40 para 63 cm para comer no sofá, e o banco-baú sob a janela vira canto de leitura." },
+};
+const DVIEWS = new Set(["sala", "estar", "isometrica", "planta_cotada"]);
+let dining = "rebativel";
+try { const s = localStorage.getItem("atelie-dining"); if (DINING[s]) dining = s; } catch (e) {}
+function imgSrc(p, v) { return DVIEWS.has(v) ? `img2/${p}_${v}__${dining}.jpg` : `img2/${p}_${v}.jpg`; }
+// enquanto uma imagem da opção não existe, cai na versão B e depois na antiga
+document.addEventListener("error", e => {
+  const img = e.target;
+  if (img.tagName !== "IMG" || !/__\w+\.jpg$/.test(img.src)) return;
+  img.src = /__rebativel\.jpg$/.test(img.src) ? img.src.replace(/__\w+\.jpg$/, ".jpg") : img.src.replace(/__\w+\.jpg$/, "__rebativel.jpg");
+}, true);
+const dinBox = document.getElementById("dinsel");
+Object.entries(DINING).forEach(([k, d]) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.dataset.din = k; b.innerHTML = `<b>${d.tag}</b>${d.label}`;
+  b.addEventListener("click", () => setDining(k));
+  dinBox.appendChild(b);
+});
+function setDining(k) {
+  dining = k;
+  try { localStorage.setItem("atelie-dining", k); } catch (e) {}
+  document.querySelectorAll("[data-din]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.din === k)));
+  document.getElementById("dintext").innerHTML = DINING[k].text;
+  refreshImages();
+  if (typeof loadDining === "function") loadDining(current);
+  if (typeof renderCatalog === "function") renderCatalog();
+}
+function refreshImages() {
+  document.querySelectorAll("img[data-view]").forEach(img => { img.src = imgSrc(current, img.dataset.view); });
+  document.querySelectorAll(".thumbs").forEach(box => box.querySelectorAll("button").forEach(b => { b.querySelector("img").src = imgSrc(b.dataset.p, box.dataset.view); }));
+  document.querySelectorAll(".palcard img").forEach(img => { img.src = imgSrc(img.closest("[data-p]").dataset.p, "estar"); });
+}
 
 const palBox = document.getElementById("palettes");
 ORDER.forEach(p => {
@@ -376,7 +423,7 @@ document.querySelectorAll(".thumbs").forEach(box => {
   ORDER.forEach(p => {
     const b = document.createElement("button");
     b.type = "button"; b.dataset.p = p;
-    b.innerHTML = `<img src="img2/${p}_${box.dataset.view}.jpg" alt="" loading="lazy">${PALETTES[p].label}`;
+    b.innerHTML = `<img src="${imgSrc(p, box.dataset.view)}" alt="" loading="lazy">${PALETTES[p].label}`;
     b.addEventListener("click", () => setPalette(p));
     box.appendChild(b);
   });
@@ -385,7 +432,7 @@ const grid = document.getElementById("palgrid");
 ORDER.forEach(p => {
   const b = document.createElement("button");
   b.className = "palcard"; b.type = "button"; b.dataset.p = p;
-  b.innerHTML = `<img src="img2/${p}_estar.jpg" alt="" loading="lazy"><div class="chips">${PALETTES[p].swatches.map(c => `<i style="background:${c}" title="${c}"></i>`).join("")}</div><h3>${PALETTES[p].label}</h3><p>${PALETTES[p].why}</p>`;
+  b.innerHTML = `<img src="${imgSrc(p, "estar")}" alt="" loading="lazy"><div class="chips">${PALETTES[p].swatches.map(c => `<i style="background:${c}" title="${c}"></i>`).join("")}</div><h3>${PALETTES[p].label}</h3><p>${PALETTES[p].why}</p>`;
   b.addEventListener("click", () => setPalette(p));
   grid.appendChild(b);
 });
@@ -393,10 +440,11 @@ ORDER.forEach(p => {
 function setPalette(p) {
   current = p;
   try { localStorage.setItem("atelie-palette", p); } catch (e) {}
-  document.querySelectorAll("img[data-view]").forEach(img => { img.src = `img2/${p}_${img.dataset.view}.jpg`; });
+  document.querySelectorAll("img[data-view]").forEach(img => { img.src = imgSrc(p, img.dataset.view); });
   document.querySelectorAll("[data-p]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.p === p)));
   loadModel(p);
 }
 __VIEWER__
 __CATALOGJS__
+setDining(dining);
 </script>

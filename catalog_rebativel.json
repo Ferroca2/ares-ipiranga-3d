@@ -1,0 +1,41 @@
+[
+ {
+  "id": "mesa_rebativel",
+  "name": "Mesa rebatível de parede",
+  "room": "Sala",
+  "type": "Marcenaria",
+  "note": "Painel de freijó com tampo que abre sobre braços articulados; fechada ocupa 6 cm",
+  "face": "e",
+  "opts": "B",
+  "w": 0.92,
+  "d": 0.525,
+  "h": 0.96,
+  "z0": 0.0
+ },
+ {
+  "id": "cadeira",
+  "name": "Cadeira",
+  "room": "Sala",
+  "type": "Móvel",
+  "note": "Freijó com assento de palhinha",
+  "face": "w",
+  "opts": "B",
+  "w": 0.44,
+  "d": 0.46,
+  "h": 0.86,
+  "z0": 0.0
+ },
+ {
+  "id": "pendente",
+  "name": "Pendente",
+  "room": "Sala",
+  "type": "Iluminação",
+  "note": "Sobre a mesa",
+  "face": "e",
+  "opts": "ABC",
+  "w": 0.38,
+  "d": 0.38,
+  "h": 0.838,
+  "z0": 1.662
+ }
+]

@@ -1,0 +1,28 @@
+[
+ {
+  "id": "mesa_elevatoria",
+  "name": "Mesa de centro com tampo elevatório",
+  "room": "Sala",
+  "type": "Móvel",
+  "note": "Tampo sobe de 40 para 63 cm para refeições no sofá",
+  "face": "s",
+  "opts": "C",
+  "w": 0.9,
+  "d": 0.62,
+  "h": 0.63,
+  "z0": 0.0
+ },
+ {
+  "id": "banco",
+  "name": "Banco-baú sob a janela",
+  "room": "Sala",
+  "type": "Marcenaria",
+  "note": "Assento com tampa e baú interno; vira canto de leitura",
+  "face": "e",
+  "opts": "C",
+  "w": 1.02,
+  "d": 0.415,
+  "h": 0.943,
+  "z0": 0.0
+ }
+]

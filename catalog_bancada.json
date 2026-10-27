@@ -1,0 +1,41 @@
+[
+ {
+  "id": "mesa_centro",
+  "name": "Mesa de centro redonda",
+  "room": "Sala",
+  "type": "Móvel",
+  "note": "",
+  "face": "s",
+  "opts": "AB",
+  "w": 0.5,
+  "d": 0.5,
+  "h": 0.39,
+  "z0": 0.0
+ },
+ {
+  "id": "bancada_ref",
+  "name": "Bancada de refeição na janela",
+  "room": "Sala",
+  "type": "Marcenaria",
+  "note": "Presa na parede abaixo do peitoril, com mãos-francesas",
+  "face": "e",
+  "opts": "A",
+  "w": 1.0,
+  "d": 0.38,
+  "h": 0.34,
+  "z0": 0.63
+ },
+ {
+  "id": "banqueta",
+  "name": "Banqueta alta",
+  "room": "Sala",
+  "type": "Móvel",
+  "note": "Assento de palhinha e descanso de pés",
+  "face": "e",
+  "opts": "A",
+  "w": 0.37,
+  "d": 0.37,
+  "h": 0.664,
+  "z0": 0.0
+ }
+]

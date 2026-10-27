@@ -20,3 +20,7 @@ web_items/
 site/items/
 catalog_png/
 *.log
+renders_j/
+renders_opcoes/
+video/f_*
+video/*/
