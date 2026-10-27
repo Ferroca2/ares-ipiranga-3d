@@ -158,6 +158,8 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
   .bar .name { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+.fb { position: relative; }
+.fb::after { content: attr(data-fbnote); position: absolute; left: 10px; bottom: 10px; right: 10px; width: fit-content; font: 500 12px/1.35 var(--body); color: #fff; background: rgba(28,29,31,.78); padding: 6px 10px; border-radius: 6px; pointer-events: none; }
 </style>
 
 <div class="bar"><div class="wrap">
@@ -397,6 +399,14 @@ document.addEventListener("error", e => {
   const img = e.target;
   if (img.tagName !== "IMG" || !/__\w+\.jpg$/.test(img.src)) return;
   img.src = /__rebativel\.jpg$/.test(img.src) ? img.src.replace(/__\w+\.jpg$/, ".jpg") : img.src.replace(/__\w+\.jpg$/, "__rebativel.jpg");
+}, true);
+// avisa quando a foto mostrada não é a da opção escolhida
+document.addEventListener("load", e => {
+  const img = e.target;
+  if (img.tagName !== "IMG" || !img.dataset.view || !img.parentElement) return;
+  const fb = DVIEWS.has(img.dataset.view) && dining !== "rebativel" && !img.src.includes(`__${dining}.jpg`);
+  img.parentElement.classList.toggle("fb", fb);
+  img.parentElement.dataset.fbnote = fb ? `Foto da opção ${DINING[dining].tag} ainda não disponível nesta vista · mostrando a opção B` : "";
 }, true);
 const dinBox = document.getElementById("dinsel");
 Object.entries(DINING).forEach(([k, d]) => {
