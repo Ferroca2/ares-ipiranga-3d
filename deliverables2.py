@@ -236,7 +236,7 @@ def pdf():
             top = Hh - M - 70 - (k // cols) * ch
             c.setFillColorRGB(0.937, 0.925, 0.902)
             c.rect(x + 4, top - ch * 0.62, cw - 8, ch * 0.62 - 6, fill=1, stroke=0)
-            png = os.path.join(ROOT, "catalog_png", f"{it['id']}.png")
+            png = os.path.join(SITE, "img2", f"cat_{it['id']}.webp")
             if os.path.exists(png):
                 ir = ImageReader(png)
                 iw, ih = ir.getSize()

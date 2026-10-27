@@ -344,9 +344,9 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
     <header><h2>Arquivos</h2><span class="cota">downloads</span></header>
     <div class="files">
       <div><b>Caderno A3 (PDF)</b><br><a href="Ares_Ipiranga_Atelie_Projeto3D.pdf" download>Ares_Ipiranga_Atelie_Projeto3D.pdf</a></div>
-      <div><b>Blender, com materiais completos</b><br><a href="https://github.com/Ferroca2/ares-ipiranga-3d/releases/download/v2/ares_ipiranga_blender_4paletas.zip">.blend · 4 paletas (zip)</a></div>
+      <div><b>Blender, com materiais completos</b><br><a href="https://github.com/Ferroca2/ares-ipiranga-3d/releases/download/v2/ares_ipiranga_blender_5paletas.zip">.blend · 5 paletas (zip)</a></div>
       <div><b>FBX, OBJ, DAE e GLB</b><br><a href="https://github.com/Ferroca2/ares-ipiranga-3d/releases/download/v2/ares_ipiranga_terra_fbx_obj_dae_glb.zip">paleta Terra (zip)</a> · SketchUp, 3ds Max, Revit, Rhino</div>
-      <div><b>GLB das 4 paletas</b><br><a href="https://github.com/Ferroca2/ares-ipiranga-3d/releases/download/v2/ares_ipiranga_glb_4paletas.zip">.glb (zip)</a></div>
+      <div><b>GLB das 5 paletas</b><br><a href="https://github.com/Ferroca2/ares-ipiranga-3d/releases/download/v2/ares_ipiranga_glb_5paletas.zip">.glb (zip)</a></div>
       <div><b>Pesquisa de projeto</b><br><a href="https://github.com/Ferroca2/ares-ipiranga-3d/blob/main/research/design_brief.md">research/design_brief.md</a></div>
       <div><b>Scripts paramétricos</b><br><a href="https://github.com/Ferroca2/ares-ipiranga-3d">github.com/Ferroca2/ares-ipiranga-3d</a></div>
     </div>
@@ -359,7 +359,7 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
 <script>
-const PALETTES = {"terra": {"label": "Terra Paulista", "swatches": ["#F2EDE4", "#C39062", "#B5583A", "#6E6B4A", "#3A3835"], "why": "Base mineral quente: tijolo e terra roxa. A terracota costura rack, cabeceira, barrado e guarda-roupa."}, "mata": {"label": "Mata Atlântica", "swatches": ["#F4F1EA", "#CDAE84", "#4F5B3E", "#A3AE94", "#B08D57"], "why": "Calma e biofílica. Sálvia como parede média no quarto 2, musgo nas lacas, metais em latão."}, "moderno": {"label": "Modernismo Paulista", "swatches": ["#F5F3EE", "#AC7D52", "#1F4E8C", "#BDB8AF", "#1E1E1E"], "why": "Referência aos azulejos da arquitetura moderna brasileira: cobalto no backsplash e no barrado."}, "ipe": {"label": "Ipê", "swatches": ["#EFE6D4", "#8A5E3E", "#C99A2E", "#D9A68F", "#2F4A3A"], "why": "A mais ousada: ocre nas lacas, argila no quarto 2 e sofá verde-garrafa."}};
+const PALETTES = {"terra": {"label": "Terra Paulista", "swatches": ["#F2EDE4", "#C39062", "#B5583A", "#6E6B4A", "#3A3835"], "why": "Base mineral quente: tijolo e terra roxa. A terracota costura rack, cabeceira, barrado e guarda-roupa."}, "mata": {"label": "Mata Atlântica", "swatches": ["#F4F1EA", "#CDAE84", "#4F5B3E", "#A3AE94", "#B08D57"], "why": "Calma e biofílica. Sálvia como parede média no quarto 2, musgo nas lacas, metais em latão."}, "moderno": {"label": "Modernismo Paulista", "swatches": ["#F5F3EE", "#AC7D52", "#1F4E8C", "#BDB8AF", "#1E1E1E"], "why": "Referência aos azulejos da arquitetura moderna brasileira: cobalto no backsplash e no barrado."}, "ipe": {"label": "Ipê", "swatches": ["#EFE6D4", "#8A5E3E", "#C99A2E", "#D9A68F", "#2F4A3A"], "why": "A mais ousada: ocre nas lacas, argila no quarto 2 e sofá verde-garrafa."}, "ebano": {"label": "Madeira Preta", "swatches": ["#F2EFE9", "#2A2623", "#9C6B43", "#8C8F7E", "#D8D1C5"], "why": "Toda a marcenaria em madeira ebanizada (o veio aparece sob o preto), com caramelo, sálvia e latão. Paredes e piso claros seguram o contraste."}};
 const ORDER = Object.keys(PALETTES);
 let current = "terra";
 try { const s = localStorage.getItem("atelie-palette"); if (ORDER.includes(s)) current = s; } catch (e) {}
