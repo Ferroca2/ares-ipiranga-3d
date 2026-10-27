@@ -513,10 +513,10 @@ function label(text) {
 }
 function arrowMesh() {
   const g = new THREE.Group();
-  const disc = new THREE.Mesh(new THREE.CircleGeometry(0.2, 40), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9, depthTest: false }));
+  const disc = new THREE.Mesh(new THREE.CircleGeometry(0.2, 40), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9, depthTest: false, depthWrite: false, toneMapped: false, side: THREE.DoubleSide }));
   const sh = new THREE.Shape();
   sh.moveTo(0, 0.12); sh.lineTo(0.11, -0.02); sh.lineTo(0.06, -0.02); sh.lineTo(0, 0.05); sh.lineTo(-0.06, -0.02); sh.lineTo(-0.11, -0.02); sh.closePath();
-  const chev = new THREE.Mesh(new THREE.ShapeGeometry(sh), new THREE.MeshBasicMaterial({ color: 0x2b55c8, depthTest: false }));
+  const chev = new THREE.Mesh(new THREE.ShapeGeometry(sh), new THREE.MeshBasicMaterial({ color: 0x1f4fd1, depthTest: false, depthWrite: false, toneMapped: false, side: THREE.DoubleSide }));
   chev.position.z = 0.001; disc.renderOrder = 10; chev.renderOrder = 11;
   const flat = new THREE.Group(); flat.add(disc, chev); flat.rotation.x = -Math.PI / 2;
   g.add(flat);
