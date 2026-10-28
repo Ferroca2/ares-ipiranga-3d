@@ -135,6 +135,11 @@ sc.render.bake.margin = 0
 
 def bake(m, a_ax, b_ax, a0, b0, a1, b1, w, h):
     """Assa a cor base de m sobre o retângulo [a0,a1]x[b0,b1] do plano (a_ax, b_ax)."""
+    path = os.path.join(BAKE_DIR, re.sub(r"[^\w]+", "_", m.name) + ".jpg")
+    if LIGHTMAP and os.path.exists(path):
+        # a cor já foi assada quando os modelos foram gerados; reaproveita para poupar memória
+        return bpy.data.images.load(path, check_existing=True)
+    print("BAKE ALBEDO", m.name, w, h, flush=True)
     me = bpy.data.meshes.new("bake")
     third = ({0, 1, 2} - {AX[a_ax], AX[b_ax]}).pop()
     vs = []
@@ -392,6 +397,7 @@ def tone_lightmap(lum, stem):
     used = lum[lum > 1e-4]
     ref = float(np.percentile(used, 98)) if used.size else 1.0
     v = np.clip(lum / ref, 0, 1) ** (1 / 1.6)       # curva suave: mais níveis nas sombras
+    v = 0.30 + 0.70 * v                             # piso: peça pequena ou mal mapeada nunca fica preta
     im = Image.fromarray((v * 255).astype(np.uint8), "L").filter(ImageFilter.GaussianBlur(1.0))
     path = os.path.join(BAKE_DIR, stem + ".jpg")
     im.convert("RGB").save(path, quality=88)
