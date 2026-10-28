@@ -6,6 +6,7 @@ Estudo de interiores em 3D para o apartamento final 01/08 (31,22 m², 2 dormitó
 - **Caderno A3:** `Ares_Ipiranga_Atelie_Projeto3D.pdf`
 - **Modelos 3D (.blend, .fbx, .obj, .dae, .glb):** na [Release v2](../../releases/tag/v2)
 - **Pesquisa e conceito:** `research/design_brief.md`
+- **Luz do modelo 3D em alta resolução (rodar à noite em outro computador):** [LUZ_NOITE.md](LUZ_NOITE.md)
 
 ## Como regerar
 Blender 4.2 como módulo Python (`pip install bpy==4.2.0`, Python 3.11):

@@ -367,11 +367,21 @@ def bake_lightmap():
     sc.render.engine = "CYCLES"
     if LM_DEVICE == "GPU":
         prefs = bpy.context.preferences.addons["cycles"].preferences
-        prefs.compute_device_type = "METAL"
-        prefs.get_devices()
+        # Mac: Metal; Windows/Linux: a primeira API com placa disponível (NVIDIA, AMD, Intel)
+        gpu = None
+        for t in (["METAL"] if sys.platform == "darwin" else ["OPTIX", "CUDA", "HIP", "ONEAPI"]):
+            try:
+                prefs.compute_device_type = t
+            except TypeError:
+                continue
+            prefs.get_devices()
+            if any(d.type == t for d in prefs.devices):
+                gpu = t
+                break
         for d in prefs.devices:
-            d.use = True
-    sc.cycles.device = LM_DEVICE
+            d.use = d.type == gpu
+        print("BAKE DEVICE", gpu or "CPU (nenhuma placa compatível)", flush=True)
+    sc.cycles.device = "GPU" if LM_DEVICE == "GPU" and gpu else "CPU"
     sc.cycles.samples = LM_SAMPLES
     sc.cycles.use_denoising = False
     sc.render.bake.use_pass_direct = True
