@@ -8,7 +8,10 @@ import sys
 sys.path.insert(0, os.path.dirname(S))
 import catalog_merge
 cat = catalog_merge.merge()
-catjs = open(os.path.join(S, "catalog.js")).read().replace("__CATALOG__", json.dumps(cat, ensure_ascii=False))
+compras_f = os.path.join(os.path.dirname(S), "compras.json")
+compras = json.load(open(compras_f)) if os.path.exists(compras_f) else {"itens": {}, "acabamentos": [], "extra": {}}
+catjs = (open(os.path.join(S, "catalog.js")).read().replace("__CATALOG__", json.dumps(cat, ensure_ascii=False))
+         .replace("__COMPRAS__", json.dumps(compras, ensure_ascii=False)))
 page = (page.replace("__PALETTES__", json.dumps(pal, ensure_ascii=False)).replace("__VIEWER__", viewer)
         .replace("__CATALOGJS__", catjs))
 # a seção do vídeo só entra quando o MP4 existe

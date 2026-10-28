@@ -142,6 +142,24 @@ table.dims td { padding: 3px 0; font-size: 13px; border-bottom: 1px dashed var(-
 table.dims td:first-child { color: var(--muted); }
 table.dims td:last-child { text-align: right; font-family: var(--mono); font-size: 12.5px; white-space: nowrap; }
 dialog#itemdlg { width: min(1100px, calc(100vw - 32px)); max-height: calc(100vh - 32px); border: 1px solid var(--rule); background: var(--sheet); color: var(--ink); padding: 0; }
+.dlgside { max-height: calc(100vh - 34px); overflow-y: auto; }
+.buy { border-top: 1px solid var(--rule); padding-top: 10px; display: grid; gap: 6px; }
+.buy h4, .acab h4 { font: 600 13px/1.3 var(--body); margin: 8px 0 0; }
+.buylist { margin: 0; padding: 0 0 0 18px; display: grid; gap: 8px; }
+.buylist li { font-size: 13.5px; line-height: 1.35; min-width: 0; overflow-wrap: anywhere; }
+.buylist a { font-weight: 500; }
+.buylist .shop { display: block; text-decoration: none; font: 500 11px/1.3 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.buylist .meta { display: block; font-size: 13px; }
+.buylist .sub, .dica { display: block; color: var(--muted); font-size: 12.5px; margin: 0; }
+.acabgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+.acab { border-top: 1px solid var(--rule); padding-top: 14px; min-width: 0; display: grid; gap: 8px; align-content: start; }
+.acab h3 { font-size: 16px; font-weight: 650; margin: 2px 0; }
+.acabhead { display: flex; gap: 12px; align-items: center; }
+.acabhead code { font: 400 12px var(--mono); color: var(--muted); }
+.buylist details summary, details.dica summary { cursor: pointer; color: var(--pen); font-size: 12px; }
+details.dica { margin-top: 2px; }
+.acab, .buy, .buylist li, details { overflow-wrap: anywhere; min-width: 0; }
+.swatch { width: 52px; height: 52px; border-radius: 6px; flex: none; border: 1px solid var(--rule); }
 dialog#itemdlg::backdrop { background: rgba(10, 11, 12, .55); }
 .dlg { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 3fr); }
 #itemview { position: relative; aspect-ratio: 4 / 3; background: #EFECE6; }
@@ -157,6 +175,7 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
   .hero-head, .plan, .room, .room.tall, .dlg { grid-template-columns: minmax(0, 1fr); }
   .bar .name { width: 100%; }
 }
+@media (max-width: 480px) { .item { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 .fb { position: relative; }
 .fb::after { content: attr(data-fbnote); position: absolute; left: 10px; bottom: 10px; right: 10px; width: fit-content; font: 500 12px/1.35 var(--body); color: #fff; background: rgba(28,29,31,.78); padding: 6px 10px; border-radius: 6px; pointer-events: none; }
@@ -330,6 +349,14 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
     <div class="catgrid" id="catgrid"></div>
   </section>
 
+  <section class="block" id="acabamentos">
+    <header><h2>Acabamentos e onde comprar</h2><span class="cota">paleta <span id="acabpal"></span></span></header>
+    <p class="lead">Tintas, pisos, revestimentos e têxteis na cor da paleta escolhida no topo, com três opções de compra bem avaliadas, da mais barata à mais cara. As peças do catálogo acima têm as opções delas ao abrir cada uma.</p>
+    <div class="acabgrid" id="acabgrid"></div>
+    <header style="margin-top:40px"><h3>Quem faz a marcenaria</h3></header>
+    <div class="acabgrid" id="prestgrid"></div>
+  </section>
+
   <dialog id="itemdlg" aria-labelledby="itemname">
     <div class="dlg">
       <div id="itemview"><div id="itemstatus">Carregando peça…</div></div>
@@ -337,8 +364,9 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
         <span class="label" id="itemmeta"></span>
         <h3 id="itemname"></h3>
         <div id="itemdims"></div>
+        <div id="itembuy"></div>
         <span class="label">arraste para girar · role para aproximar</span>
-        <button class="tool" id="itemclose" type="button">Fechar</button>
+        <button class="tool" id="itemclose" type="button" autofocus>Fechar</button>
       </div>
     </div>
   </dialog>
@@ -463,6 +491,7 @@ function setPalette(p) {
   document.querySelectorAll("img[data-view]").forEach(img => { img.src = imgSrc(p, img.dataset.view); });
   document.querySelectorAll("[data-p]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.p === p)));
   loadModel(p);
+  if (window.comprasReady) renderFinishes();
 }
 __VIEWER__
 __CATALOGJS__

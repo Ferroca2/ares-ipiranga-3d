@@ -1,5 +1,6 @@
 /* ---------- catálogo de móveis e eletrodomésticos ---------- */
 const CATALOG = __CATALOG__;
+const COMPRAS = __COMPRAS__;
 const catGrid = document.getElementById("catgrid"), catFilter = document.getElementById("catfilter");
 const cm = v => Math.round(v * 100).toLocaleString("pt-BR");
 let catRoom = "Todos";
@@ -106,6 +107,7 @@ function openItem(id) {
   document.getElementById("itemname").textContent = it.name;
   document.getElementById("itemmeta").textContent = `${it.room} · ${it.type}`;
   document.getElementById("itemdims").innerHTML = dimsHTML(it) + (it.note ? `<p>${it.note}</p>` : "");
+  document.getElementById("itembuy").innerHTML = buyHTML(it);
   dlg.showModal();
   if (!iR) { try { initItemViewer(); } catch (e) { istat.hidden = false; istat.textContent = "Seu navegador não abriu o 3D."; return; } }
   if (iObj) { iS.remove(iObj); iObj = null; }
@@ -120,3 +122,50 @@ function openItem(id) {
 }
 document.getElementById("itemclose").addEventListener("click", () => dlg.close());
 dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
+
+
+/* ---------- onde comprar: 3 opções por peça, na cor da paleta em uso ---------- */
+const PARTE = { cuba: "Cuba", torneira: "Torneira", box: "Cama box + colchão", roupa: "Roupa de cama", peseira: "Peseira",
+  vidracaria: "Vidraçarias (sob medida, até o forro)", kit: "Kit pronto (mais barato, até 1,90 m)", pronto: "Pronto, sem marcenaria" };
+const PREST = { marcenaria: "Marcenarias (sob medida)", estofador: "Estofadores", palhinha: "Tela de palhinha" };
+const brl = v => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 2 });
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+function optsFor(key) {
+  const it = COMPRAS.itens[key];
+  if (!it) return null;
+  const v = it.paletas[current] || Object.keys(it.variantes)[0];
+  return { ops: it.variantes[v] || [], dica: it.dica };
+}
+function optHTML(o) {
+  const meta = [o.preco != null ? `<b>${brl(o.preco)}</b>` : "", o.nota != null ? `★ ${String(o.nota).replace(".", ",")}${o.avaliacoes ? ` (${o.avaliacoes.toLocaleString("pt-BR")})` : ""}` : ""].filter(Boolean).join(" · ");
+  const sub = [o.cor, o.medidas].filter(Boolean).map(esc).join(" · ");
+  return `<li><a href="${esc(o.url)}" target="_blank" rel="noopener nofollow"><span class="shop">${esc(o.loja)}</span>${esc(o.produto || "")}</a>
+    ${meta ? `<span class="meta">${meta}</span>` : ""}${sub ? `<span class="sub">${sub}</span>` : ""}${o.obs ? `<details class="sub"><summary>detalhes</summary>${esc(o.obs)}</details>` : ""}</li>`;
+}
+function groupHTML(title, g) {
+  if (!g || !g.ops.length) return "";
+  return `${title ? `<h4>${title}</h4>` : ""}<ol class="buylist">${g.ops.map(optHTML).join("")}</ol>${g.dica ? `<details class="dica"><summary>dica de compra</summary>${esc(g.dica)}</details>` : ""}`;
+}
+function buyHTML(it) {
+  const keys = Object.keys(COMPRAS.itens).filter(k => k === it.id || k.startsWith(it.id + ":"));
+  let h = keys.map(k => groupHTML(k.includes(":") ? PARTE[k.split(":")[1]] || k.split(":")[1] : "", optsFor(k))).join("");
+  if (it.type === "Marcenaria") h += ["marcenaria", ...(COMPRAS.extra[it.id] || [])].map(k => groupHTML(PREST[k], optsFor(k))).join("");
+  if (!h) return "";
+  return `<div class="buy"><span class="label">onde comprar · ${PALETTES[current].label}</span>${h}<p class="dica">Preços e notas conferidos em out/2026; podem mudar. Ordem: do mais barato ao mais caro.</p></div>`;
+}
+
+function renderFinishes() {
+  const box = document.getElementById("acabgrid");
+  if (!box) return;
+  document.getElementById("acabpal").textContent = PALETTES[current].label;
+  box.innerHTML = COMPRAS.acabamentos.filter(a => COMPRAS.itens[a.id]).map(a => `
+    <article class="acab">
+      <div class="acabhead">${a.hex ? `<i class="swatch" style="background:${a.hex[current]}" title="${a.hex[current]}"></i>` : ""}
+        <div><span class="label">${a.onde}</span><h3>${a.nome}</h3>${a.hex ? `<code>${a.hex[current]}</code>` : ""}</div></div>
+      ${groupHTML("", optsFor(a.id))}
+    </article>`).join("");
+  const pr = document.getElementById("prestgrid");
+  if (pr) pr.innerHTML = Object.keys(PREST).filter(k => COMPRAS.itens[k]).map(k => `<article class="acab"><h3>${PREST[k]}</h3>${groupHTML("", optsFor(k))}</article>`).join("");
+}
+window.comprasReady = true;
+renderFinishes();
