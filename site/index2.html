@@ -159,6 +159,33 @@ dialog#itemdlg { width: min(1100px, calc(100vw - 32px)); max-height: calc(100vh 
 .buylist details summary, details.dica summary { cursor: pointer; color: var(--pen); font-size: 12px; }
 details.dica { margin-top: 2px; }
 .acab, .buy, .buylist li, details { overflow-wrap: anywhere; min-width: 0; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.stat { border-top: 1px solid var(--rule); padding-top: 8px; display: grid; gap: 2px; }
+.stat b { font: 700 24px/1.2 var(--display); font-variant-numeric: tabular-nums; }
+.costwrap { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.costplot { position: relative; min-width: 0; }
+.costplot svg { display: block; width: 100%; height: auto; touch-action: none; }
+.costplot .grid { stroke: var(--rule); stroke-width: 1; }
+.costplot .tick { fill: var(--muted); font: 400 11px var(--mono); }
+.costplot .dot { fill: var(--pen); opacity: .75; }
+.costplot .meanline { stroke: var(--ink); stroke-width: 2; stroke-dasharray: 6 4; }
+.costplot .medline { stroke: var(--muted); stroke-width: 2; stroke-dasharray: 2 4; }
+.costplot .reflabel { fill: var(--ink); font: 600 12px var(--body); paint-order: stroke; stroke: var(--sheet); stroke-width: 4px; }
+.costplot .cross { stroke: var(--muted); stroke-width: 1; }
+.costplot .hl { fill: var(--pen); stroke: var(--sheet); stroke-width: 2; }
+.costtip { position: absolute; pointer-events: none; background: var(--chip); border: 1px solid var(--rule); border-radius: 6px; padding: 6px 10px; width: 220px; font-size: 12.5px; display: grid; gap: 2px; box-shadow: 0 4px 14px rgba(0,0,0,.12); }
+.costtip[hidden] { display: none; }
+.costtip b { font-size: 15px; }
+.costtip span { color: var(--muted); }
+.combo { min-width: 0; border: 1px solid var(--rule); background: var(--sheet); padding: 12px 14px; max-height: 520px; overflow-y: auto; }
+.combo p { margin: 0 0 8px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.combolist { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.combolist li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 10px; font-size: 12.5px; line-height: 1.3; border-top: 1px dashed var(--rule); padding-top: 5px; }
+.combolist .cn { grid-column: 1; font-weight: 600; }
+.combolist .cn i { font-style: normal; color: var(--muted); font-weight: 400; }
+.combolist a { grid-column: 1; overflow-wrap: anywhere; }
+.combolist b { grid-column: 2; grid-row: 1 / span 2; font-variant-numeric: tabular-nums; align-self: center; }
+@media (max-width: 860px) { .costwrap { grid-template-columns: minmax(0, 1fr); } }
 .swatch { width: 52px; height: 52px; border-radius: 6px; flex: none; border: 1px solid var(--rule); }
 dialog#itemdlg::backdrop { background: rgba(10, 11, 12, .55); }
 .dlg { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 3fr); }
@@ -357,6 +384,17 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
     <div class="acabgrid" id="prestgrid"></div>
   </section>
 
+  <section class="block" id="custo">
+    <header><h2>Quanto custa tudo</h2><span class="cota" id="costpal"></span></header>
+    <p class="lead">Cada ponto é uma combinação de compras: uma opção cotada para cada peça e acabamento com preço, já somadas e multiplicadas pelas quantidades. Os pontos vão da combinação mais barata à mais cara. Passe o mouse (ou toque) num ponto para ver a lista de compras dele; clique para fixar.</p>
+    <div class="stats" id="coststats"></div>
+    <div class="costwrap">
+      <div class="costplot" id="costplot"></div>
+      <div class="combo"><p id="combohead"></p><ol class="combolist" id="combolist"></ol></div>
+    </div>
+    <p class="dica" style="margin-top:12px">Muda com a paleta e a opção de jantar escolhidas no topo. Não entram, por não terem preço publicado: a marcenaria sob medida, o estofador e a vidraçaria do box; no lugar delas entram as alternativas prontas cotadas. Quantidades: 2 cadeiras, banquetas e arandelas; 26 m² de vinílico, 4 m² de porcelanato, 5,5 m² de azulejo no box e 1,2 m² na cozinha (com 10% de perda); 2 latas para as paredes. Mínimo, máximo e média são exatos; a mediana sai de 20 mil combinações sorteadas. Frete e instalação não incluídos.</p>
+  </section>
+
   <dialog id="itemdlg" aria-labelledby="itemname">
     <div class="dlg">
       <div id="itemview"><div id="itemstatus">Carregando peça…</div></div>
@@ -452,6 +490,7 @@ function setDining(k) {
   refreshImages();
   if (typeof loadDining === "function") loadDining(current);
   if (typeof renderCatalog === "function") renderCatalog();
+  if (window.comprasReady) renderCost();
 }
 function refreshImages() {
   document.querySelectorAll("img[data-view]").forEach(img => { img.src = imgSrc(current, img.dataset.view); });
@@ -491,7 +530,7 @@ function setPalette(p) {
   document.querySelectorAll("img[data-view]").forEach(img => { img.src = imgSrc(p, img.dataset.view); });
   document.querySelectorAll("[data-p]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.p === p)));
   loadModel(p);
-  if (window.comprasReady) renderFinishes();
+  if (window.comprasReady) { renderFinishes(); renderCost(); }
 }
 __VIEWER__
 __CATALOGJS__
