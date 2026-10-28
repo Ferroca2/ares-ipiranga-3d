@@ -53,7 +53,7 @@ def font(size, bold=False):
 
 
 RJ = os.path.join(ROOT, "renders_j")
-DOPTS = ["rebativel", "bancada", "centro"]
+DOPTS = ["rebativel", "bancada", "centro", "parede"]
 DVIEWS = ["sala", "estar", "isometrica", "planta_cotada"]
 
 
@@ -239,11 +239,12 @@ def pdf():
         c.showPage()
 
     # opções de jantar
-    header("Onde comer na sala · três opções", "O meio da sala fica livre entre o sofá e a TV; o jantar acontece junto à janela")
-    gw = (W - 2 * M - 32) / 3
+    header("Onde comer na sala · quatro opções", "O meio da sala fica livre entre o sofá e a TV")
+    gw = (W - 2 * M - 48) / 4
     for i, (o, t, d) in enumerate([("bancada", "A · Bancada na janela", "Bancada 100 x 38 cm a 97 cm, duas banquetas altas que encaixam embaixo."),
                                    ("rebativel", "B · Mesa rebatível (padrão)", "Tampo 84 x 50 cm que abre sobre braços articulados; fechada ocupa 6 cm."),
-                                   ("centro", "C · Mesa de centro elevatória", "Tampo sobe de 40 para 63 cm; o banco-baú vira canto de leitura.")]):
+                                   ("centro", "C · Mesa de centro elevatória", "Tampo sobe de 40 para 63 cm; o banco-baú vira canto de leitura."),
+                                   ("parede", "D · Mesa ao lado do sofá", "Sofá de 1,50 m e mesa retrátil 44 x 70 cm presa na parede, com duas banquetas baixas.")]):
         x = M + i * (gw + 16)
         q = os.path.join(RJ, o, "terra", "sala.jpg")
         q = q if os.path.exists(q) else os.path.join(ROOT, "renders_opcoes", o, "terra", "sala.jpg")

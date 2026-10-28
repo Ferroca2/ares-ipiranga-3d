@@ -230,7 +230,7 @@ function fetchGLTF(url) {
   })).catch(e => { delete cache[url]; throw e; });
 }
 const fail = err => { console.error(err); status.hidden = false; status.textContent = "Não foi possível carregar o modelo 3D. Recarregue a página para tentar de novo."; };
-// apartamento sem o jantar + a peça de jantar escolhida (A, B aberta/fechada ou C)
+// apartamento sem o jantar + a peça de jantar escolhida (A, B e D abertas/fechadas, C)
 let dmodel = null, tableOpen = true;
 function loadModel(p) {
   if (!renderer) return;
@@ -239,19 +239,24 @@ function loadModel(p) {
     if (current !== p) return;
     if (model) scene.remove(model);
     model = g.scene; scene.add(model); applyCeiling(); status.hidden = true;
-    bakedLighting(!!g.baked);
+    bakedLighting(!!g.baked); syncSofa();
   }).catch(fail);
   loadDining(p);
 }
 function loadDining(p) {
   if (!renderer) return;
-  const key = dining === "rebativel" && !tableOpen ? "rebativel_fechada" : dining;
-  syncDinButtons();
+  const key = FOLDS.has(dining) && !tableOpen ? `${dining}_fechada` : dining;
+  syncDinButtons(); syncSofa();
   fetchGLTF(`models3/${p}_${key}.json`).then(g => {
     if (current !== p) return;
     if (dmodel) scene.remove(dmodel);
     dmodel = g.scene; scene.add(dmodel);
   }).catch(fail);
+}
+// mesas que abrem e fecham; na opção D o sofá de 1,50 vem junto com o jantar e o da base some
+const FOLDS = new Set(["rebativel", "parede"]);
+function syncSofa() {
+  if (model) model.traverse(o => { if (/^Sofa_/.test(o.name)) o.visible = dining !== "parede"; });
 }
 const vdin = document.getElementById("vdin");
 vdin.innerHTML = Object.entries(DINING).map(([k, d]) => `<button type="button" data-vdin="${k}">${d.tag} · ${d.label}</button>`).join("") +
@@ -264,7 +269,7 @@ vdin.addEventListener("click", e => {
 function syncDinButtons() {
   vdin.querySelectorAll("[data-vdin]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.vdin === dining)));
   const m = document.getElementById("mesaopen");
-  m.hidden = dining !== "rebativel"; m.textContent = tableOpen ? "Fechar mesa" : "Abrir mesa";
+  m.hidden = !FOLDS.has(dining); m.textContent = tableOpen ? "Fechar mesa" : "Abrir mesa";
 }
 function toGLB(json, bin) {
   const enc = new TextEncoder().encode(JSON.stringify(json));

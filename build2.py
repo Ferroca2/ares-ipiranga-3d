@@ -303,25 +303,9 @@ def sala(P, M, rnd):
     box("Geladeira_div", 3.55, 4.17, 6.965, 6.975, 1.18, 1.19, M["black"], bevel=0)
     box("Geladeira_puxador", 3.58, 3.60, 6.94, 6.965, 0.80, 1.60, M["metal"], bevel=0.005)
 
-    # ---- Parede B (y = 5,19): sofá de 2 lugares, arte grande
-    sx0, sx1, sy0, sy1 = 0.15, 1.85, 5.21, 6.06
-    for i, (px, py) in enumerate([(sx0 + 0.06, sy0 + 0.06), (sx1 - 0.06, sy0 + 0.06), (sx0 + 0.06, sy1 - 0.06), (sx1 - 0.06, sy1 - 0.06)]):
-        cyl(f"Sofa_pe_{i}", px, py, 0.0, 0.15, 0.012, M["metal"])
-    box("Sofa_base", sx0, sx1, sy0, sy1, 0.15, 0.30, M["sofa"], bevel=0.02, segs=3)
-    soft("Sofa_encosto_base", sx0, sx1, sy0, sy0 + 0.18, 0.30, 0.66, M["sofa"], round_=0.04)
-    soft("Sofa_braco_e", sx0, sx0 + 0.13, sy0, sy1, 0.30, 0.60, M["sofa"], round_=0.045)
-    soft("Sofa_braco_d", sx1 - 0.13, sx1, sy0, sy1, 0.30, 0.60, M["sofa"], round_=0.045)
-    mid = (sx0 + sx1) / 2
-    for i, (a, b) in enumerate([(sx0 + 0.135, mid - 0.003), (mid + 0.003, sx1 - 0.135)]):
-        cushion(f"Sofa_assento_{i}", a, b, sy0 + 0.17, sy1 - 0.005, 0.30, 0.44, M["sofa"], puff=0.4)
-        cushion(f"Sofa_encosto_{i}", a + 0.01, b - 0.01, sy0 + 0.02, sy0 + 0.22, 0.44, 0.82, M["sofa"], puff=0.45)
-    # almofadas com vinco, levemente giradas
-    pillow("Sofa_almofada_1", sx0 + 0.33, sy0 + 0.30, 0.63, 0.44, 0.42, 0.12, M["velvet"], tilt=-14, yaw=8)
-    pillow("Sofa_almofada_2", sx0 + 0.70, sy0 + 0.29, 0.62, 0.42, 0.40, 0.12, M["pillow2"], tilt=-12, yaw=-6)
-    pillow("Sofa_almofada_3", sx1 - 0.35, sy0 + 0.30, 0.60, 0.50, 0.30, 0.12, M["linen_white"], tilt=-12, yaw=4)
-    # manta jogada no braço
-    soft("Sofa_manta_topo", sx1 - 0.16, sx1 + 0.015, sy0 + 0.25, sy0 + 0.70, 0.60, 0.625, M["linen_acc"], round_=0.008, wrinkle=0.012)
-    soft("Sofa_manta_lado", sx1 + 0.005, sx1 + 0.022, sy0 + 0.25, sy0 + 0.70, 0.18, 0.62, M["linen_acc"], round_=0.006, wrinkle=0.012)
+    # ---- Parede B (y = 5,19): sofá de 2 lugares (na opção D ele vai para o grupo do jantar), arte grande
+    if DINING not in ("parede", "parede_fechada"):
+        sofa(M, 0.15, 1.85)
     # tapete
     soft("Sala_tapete", 0.48, 1.72, 5.78, 6.98, 0.0, 0.012, M["rug"], round_=0.004, levels=1)
     # arte grande sobre o sofá (0,70 × 1,00)
@@ -382,7 +366,43 @@ def sala(P, M, rnd):
         spot(f"Spot_{i}", x, 6.40, H - 0.18, tgt, 35, size_deg=38, blend=0.8)
 
 
-DINING = "rebativel"   # canto | bancada | rebativel | rebativel_fechada | centro
+DINING = "rebativel"   # canto | bancada | rebativel | rebativel_fechada | centro | parede | parede_fechada
+
+
+def sofa(M, sx0, sx1, n="Sofa", manta="d"):
+    """Sofá de 2 lugares encostado na parede B (y = 5,19), de sx0 a sx1."""
+    sy0, sy1 = 5.21, 6.06
+    for i, (px, py) in enumerate([(sx0 + 0.06, sy0 + 0.06), (sx1 - 0.06, sy0 + 0.06), (sx0 + 0.06, sy1 - 0.06), (sx1 - 0.06, sy1 - 0.06)]):
+        cyl(f"{n}_pe_{i}", px, py, 0.0, 0.15, 0.012, M["metal"])
+    box(f"{n}_base", sx0, sx1, sy0, sy1, 0.15, 0.30, M["sofa"], bevel=0.02, segs=3)
+    soft(f"{n}_encosto_base", sx0, sx1, sy0, sy0 + 0.18, 0.30, 0.66, M["sofa"], round_=0.04)
+    soft(f"{n}_braco_e", sx0, sx0 + 0.13, sy0, sy1, 0.30, 0.60, M["sofa"], round_=0.045)
+    soft(f"{n}_braco_d", sx1 - 0.13, sx1, sy0, sy1, 0.30, 0.60, M["sofa"], round_=0.045)
+    mid = (sx0 + sx1) / 2
+    for i, (a, b) in enumerate([(sx0 + 0.135, mid - 0.003), (mid + 0.003, sx1 - 0.135)]):
+        cushion(f"{n}_assento_{i}", a, b, sy0 + 0.17, sy1 - 0.005, 0.30, 0.44, M["sofa"], puff=0.4)
+        cushion(f"{n}_encosto_{i}", a + 0.01, b - 0.01, sy0 + 0.02, sy0 + 0.22, 0.44, 0.82, M["sofa"], puff=0.45)
+    # almofadas com vinco, levemente giradas
+    pillow(f"{n}_almofada_1", sx0 + 0.33, sy0 + 0.30, 0.63, 0.44, 0.42, 0.12, M["velvet"], tilt=-14, yaw=8)
+    pillow(f"{n}_almofada_2", sx0 + 0.70, sy0 + 0.29, 0.62, 0.42, 0.40, 0.12, M["pillow2"], tilt=-12, yaw=-6)
+    pillow(f"{n}_almofada_3", sx1 - 0.35, sy0 + 0.30, 0.60, 0.50, 0.30, 0.12, M["linen_white"], tilt=-12, yaw=4)
+    # manta jogada no braço
+    if manta == "d":
+        soft(f"{n}_manta_topo", sx1 - 0.16, sx1 + 0.015, sy0 + 0.25, sy0 + 0.70, 0.60, 0.625, M["linen_acc"], round_=0.008, wrinkle=0.012)
+        soft(f"{n}_manta_lado", sx1 + 0.005, sx1 + 0.022, sy0 + 0.25, sy0 + 0.70, 0.18, 0.62, M["linen_acc"], round_=0.006, wrinkle=0.012)
+    else:
+        soft(f"{n}_manta_topo", sx0 - 0.015, sx0 + 0.16, sy0 + 0.25, sy0 + 0.70, 0.60, 0.625, M["linen_acc"], round_=0.008, wrinkle=0.012)
+        soft(f"{n}_manta_lado", sx0 - 0.022, sx0 - 0.005, sy0 + 0.25, sy0 + 0.70, 0.18, 0.62, M["linen_acc"], round_=0.006, wrinkle=0.012)
+
+
+def low_stool(name, cx, cy, M, z0=0.0, h=0.45):
+    """Banqueta baixa de freijó com assento de palhinha, Ø 0,34; empilha (z0) quando a mesa fecha."""
+    for i, (dx, dy) in enumerate([(-1, -1), (1, -1), (1, 1), (-1, 1)]):
+        cyl(f"{name}_perna_{i}", cx + dx * 0.105, cy + dy * 0.105, z0, z0 + h - 0.03, 0.013, M["wood"], r2=0.016)
+    box(f"{name}_trava_a", cx - 0.11, cx + 0.11, cy - 0.11, cy - 0.095, z0 + 0.18, z0 + 0.20, M["wood"], bevel=0.003)
+    box(f"{name}_trava_b", cx - 0.11, cx + 0.11, cy + 0.095, cy + 0.11, z0 + 0.18, z0 + 0.20, M["wood"], bevel=0.003)
+    cyl(f"{name}_assento", cx, cy, z0 + h - 0.035, z0 + h, 0.17, M["wood"], bevel=0.006)
+    cyl(f"{name}_palhinha", cx, cy, z0 + h, z0 + h + 0.004, 0.145, M["palhinha"])
 
 
 def stool(name, cx, cy, M, h=0.66):
@@ -454,6 +474,32 @@ def dining(P, M, wood):
             box("Rebativel_tampo", 0.025, 0.055, y0, y1, 0.22, 0.72, wood, bevel=0.004)
             box("Rebativel_puxador", 0.055, 0.065, (y0 + y1) / 2 - 0.08, (y0 + y1) / 2 + 0.08, 0.66, 0.68, M["metal"], bevel=0.002)
             coffee_round(M, wood)
+    elif DINING in ("parede", "parede_fechada"):
+        # sofá de 1,50 e, entre ele e o corredor, mesa retrátil de freijó presa na parede B,
+        # 0,44 × 0,70 aberta; fechada, o tampo desce rente à parede (ocupa 6 cm) e as banquetas empilham na frente
+        sofa(M, 0.12, 1.62, "Sofa2", manta="e")
+        x0, x1, z = 1.68, 2.12, 0.75
+        box("Retratil_painel", x0, x1, 5.19, 5.215, 0.0, 0.80, wood, bevel=0.002)
+        box("Retratil_rodape", x0, x1, 5.19, 5.21, 0.0, 0.06, M["black"], bevel=0)
+        box("Retratil_dobradica", x0 + 0.02, x1 - 0.02, 5.215, 5.23, z - 0.03, z - 0.01, M["metal"], bevel=0)
+        if DINING == "parede":
+            box("Retratil_tampo", x0, x1, 5.215, 5.915, z - 0.03, z, wood, bevel=0.006, segs=3)
+            for i, x in enumerate([x0 + 0.05, x1 - 0.05]):
+                # mão-francesa articulada que sai do painel
+                box(f"Retratil_braco_{i}", x - 0.01, x + 0.01, 5.215, 5.62, z - 0.05, z - 0.03, M["metal"], bevel=0.002)
+                box(f"Retratil_braco_v{i}", x - 0.01, x + 0.01, 5.215, 5.24, z - 0.40, z - 0.03, M["metal"], bevel=0.002)
+            low_stool("Banco_baixo_1", (x0 + x1) / 2, 6.10, M)
+            low_stool("Banco_baixo_2", 2.36, 5.56, M)
+            cyl("Mesa_caneca", 1.80, 5.40, z, z + 0.09, 0.04, M["ceramic"])
+            cyl("Mesa_prato", 1.90, 5.72, z, z + 0.015, 0.11, M["ceramic"])
+            asset("ceramic_vase_04", 2.02, 5.32, z, height=0.20)
+        else:
+            box("Retratil_tampo", x0, x1, 5.215, 5.245, 0.05, z, wood, bevel=0.004)
+            box("Retratil_puxador", (x0 + x1) / 2 - 0.08, (x0 + x1) / 2 + 0.08, 5.245, 5.255, 0.10, 0.12, M["metal"], bevel=0.002)
+            low_stool("Banco_baixo_1", (x0 + x1) / 2, 5.45, M)
+            low_stool("Banco_baixo_2", (x0 + x1) / 2, 5.45, M, z0=0.455)
+        coffee_round(M, wood, cx=0.87)
+        tx, ty = (x0 + x1) / 2, 5.58
     elif DINING == "centro":
         # mesa de centro de tampo elevatório, aberta na altura de refeição (0,62)
         cx0, cx1, cy0, cy1 = 0.60, 1.50, 6.30, 6.80
@@ -476,13 +522,13 @@ def dining(P, M, wood):
     asset("potted_plant_02", 0.20, 7.38, 0.0, height=0.85)
 
 
-def coffee_round(M, wood):
+def coffee_round(M, wood, cx=1.10):
     """Mesa de centro redonda baixa, Ø 0,50."""
-    cyl("Centro_tampo", 1.10, 6.48, 0.36, 0.39, 0.25, wood, bevel=0.006)
-    cyl("Centro_base", 1.10, 6.48, 0.0, 0.36, 0.05, M["metal"])
-    cyl("Centro_pe", 1.10, 6.48, 0.0, 0.02, 0.16, M["metal"], bevel=0.004)
-    asset("ceramic_vase_01", 1.02, 6.44, 0.39, height=0.16)
-    box("Centro_livro", 1.10, 1.30, 6.42, 6.58, 0.39, 0.42, M["paper"], bevel=0.002)
+    cyl("Centro_tampo", cx, 6.48, 0.36, 0.39, 0.25, wood, bevel=0.006)
+    cyl("Centro_base", cx, 6.48, 0.0, 0.36, 0.05, M["metal"])
+    cyl("Centro_pe", cx, 6.48, 0.0, 0.02, 0.16, M["metal"], bevel=0.004)
+    asset("ceramic_vase_01", cx - 0.08, 6.44, 0.39, height=0.16)
+    box("Centro_livro", cx, cx + 0.20, 6.42, 6.58, 0.39, 0.42, M["paper"], bevel=0.002)
 
 
 def chair(name, cx, cy, yaw_deg, M):

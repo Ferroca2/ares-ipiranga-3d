@@ -7,7 +7,9 @@ w = x menor), usado para enquadrar a miniatura.
 
 ITEMS = [
     # id, nome, cômodo, tipo, pattern, face, pick, nota
-    ("sofa", "Sofá 2 lugares", "Sala", "Móvel", r"^Sofa", "s", None, "Linho, com pés e almofadas soltas"),
+    ("sofa", "Sofá 2 lugares", "Sala", "Móvel", r"^Sofa_", "s", None, "Linho, com pés e almofadas soltas", None, "ABC"),
+    ("sofa_2", "Sofá 2", "Sala", "Móvel", r"^Sofa2_", "s", None,
+     "Sofá de 1,50 m da opção D, em linho; abre espaço para a mesa retrátil ao lado", "parede", "D"),
     ("rack", "Rack suspenso", "Sala", "Marcenaria", r"^Rack", "n", None, "Laca na cor da paleta, sem pés"),
     ("ripado", "Painel ripado com LED", "Sala", "Marcenaria", r"^Sala_ripado", "n", None,
      "Ripas de madeira com perfil de LED no topo"),
@@ -18,7 +20,7 @@ ITEMS = [
      "Painel de freijó com tampo que abre sobre braços articulados; fechada ocupa 6 cm", "rebativel", "B"),
     ("cadeira", "Cadeira", "Sala", "Móvel", r"^Cadeira_1", "w", None, "Freijó com assento de palhinha", "rebativel", "B"),
     ("mesa_centro", "Mesa de centro redonda", "Sala", "Móvel", r"^Centro_(tampo|base|pe)$", "s", None, "",
-     "bancada", "AB"),
+     "bancada", "ABD"),
     ("bancada_ref", "Bancada de refeição na janela", "Sala", "Marcenaria", r"^Bancada_(janela|mao)", "e", None,
      "Presa na parede abaixo do peitoril, com mãos-francesas", "bancada", "A"),
     ("banqueta", "Banqueta alta", "Sala", "Móvel", r"^Banqueta_1", "e", None, "Assento de palhinha e descanso de pés",
@@ -27,7 +29,11 @@ ITEMS = [
      "s", None, "Tampo sobe de 40 para 63 cm para refeições no sofá", "centro", "C"),
     ("banco", "Banco-baú sob a janela", "Sala", "Marcenaria", r"^Banco_(bau|rodape|tampo|assento|encosto)", "e", None,
      "Assento com tampa e baú interno; vira canto de leitura", "centro", "C"),
-    ("pendente", "Pendente", "Sala", "Iluminação", r"^modern_ceiling_lamp", "e", None, "Sobre a mesa", "rebativel", "ABC"),
+    ("pendente", "Pendente", "Sala", "Iluminação", r"^modern_ceiling_lamp", "e", None, "Sobre a mesa", "rebativel", "ABCD"),
+    ("mesa_retratil", "Mesa retrátil de parede", "Sala", "Marcenaria", r"^Retratil_", "s", None,
+     "Freijó, 44 × 70 cm aberta; fechada, o tampo desce rente à parede e ocupa 6 cm", "parede", "D"),
+    ("banco_baixo", "Banqueta baixa", "Sala", "Móvel", r"^Banco_baixo_1", "s", None,
+     "Freijó com assento de palhinha, empilhável; assento a 45 cm", "parede", "D"),
     ("cozinha", "Cozinha planejada", "Cozinha", "Marcenaria",
      r"^Coz_(caixa|tampo|aereo|porta|gaveta|cava|rodape|perfil)", "n", None,
      "Armários inferiores, bancada de quartzo e aéreos até o teto"),

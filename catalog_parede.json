@@ -1,0 +1,41 @@
+[
+ {
+  "id": "sofa_2",
+  "name": "Sofá 2",
+  "room": "Sala",
+  "type": "Móvel",
+  "note": "Sofá de 1,50 m da opção D, em linho; abre espaço para a mesa retrátil ao lado",
+  "face": "s",
+  "opts": "D",
+  "w": 1.524,
+  "d": 0.85,
+  "h": 0.843,
+  "z0": 0.0
+ },
+ {
+  "id": "mesa_retratil",
+  "name": "Mesa retrátil de parede",
+  "room": "Sala",
+  "type": "Marcenaria",
+  "note": "Freijó, 44 × 70 cm aberta; fechada, o tampo desce rente à parede e ocupa 6 cm",
+  "face": "s",
+  "opts": "D",
+  "w": 0.44,
+  "d": 0.725,
+  "h": 0.8,
+  "z0": 0.0
+ },
+ {
+  "id": "banco_baixo",
+  "name": "Banqueta baixa",
+  "room": "Sala",
+  "type": "Móvel",
+  "note": "Freijó com assento de palhinha, empilhável; assento a 45 cm",
+  "face": "s",
+  "opts": "D",
+  "w": 0.34,
+  "d": 0.34,
+  "h": 0.454,
+  "z0": 0.0
+ }
+]
