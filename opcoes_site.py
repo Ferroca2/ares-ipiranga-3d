@@ -4,8 +4,10 @@ from PIL import Image
 ROOT = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(ROOT, "site", "opcoes")
 os.makedirs(OUT, exist_ok=True)
-for d in ["bancada", "rebativel", "rebativel_fechada", "centro"]:
+for d in ["bancada", "rebativel", "rebativel_fechada", "centro", "parede"]:
     base = os.path.join(ROOT, "renders_opcoes", d, "terra")
+    if not os.path.isdir(base):
+        base = os.path.join(ROOT, "renders_j", d, "terra")
     s = os.path.join(base, "sala.jpg")
     if os.path.exists(s):
         im = Image.open(s)
