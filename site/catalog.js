@@ -175,13 +175,18 @@ renderFinishes();
 const QTD = { cadeira: 2, banqueta: 2, banco_baixo: 2, arandela: 2, "criado:pronto": 2, "ripado:pronto": 3, cortina: 2,
   tinta_parede: 2, piso_vinilico: 26, porcelanato_banho: 4, azulejo_box: 5.5, azulejo_cozinha: 1.2 };
 const UNID = { piso_vinilico: "m²", porcelanato_banho: "m²", azulejo_box: "m²", azulejo_cozinha: "m²", tinta_parede: "latas" };
-function costPieces() {
+// gráfico 1: tudo cotado (a marcenaria entra pelas alternativas prontas); gráfico 2: sem nada de madeira planejada,
+// que vai para a marcenaria sob medida (cuba e torneira do gabinete continuam, porque são compradas à parte)
+const COSTS = [{ id: "", skip: () => false },
+  { id: "2", skip: (k, cat) => k in PREST || (cat && cat.type === "Marcenaria" && !["cuba", "torneira"].includes(k.split(":")[1])) }];
+function costPieces(C) {
   const tag = DINING[dining].tag, out = [];
   for (const k of Object.keys(COMPRAS.itens)) {
     const base = k.split(":")[0], part = k.split(":")[1];
     const cat = CATALOG.find(i => i.id === base), fin = COMPRAS.acabamentos.find(a => a.id === k);
     if (cat && cat.opts && !cat.opts.includes(tag)) continue;
     if (!cat && !fin && !(k in PREST)) continue;
+    if (C.skip(k, cat)) continue;
     const g = optsFor(k), ops = g ? g.ops.filter(o => o.preco != null) : [];
     if (!ops.length) continue;
     const nome = cat ? cat.name + (part ? ` · ${part === "pronto" ? "pronto" : (PARTE[part] || part).split(" (")[0]}` : "") : fin ? fin.nome : PREST[k];
@@ -190,11 +195,12 @@ function costPieces() {
   return out;
 }
 function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
-let costState = null, costPin = -1;
-function renderCost() {
-  const box = document.getElementById("costplot");
+const $c = (C, id) => document.getElementById(id + C.id);
+function renderCost() { COSTS.forEach(renderCostChart); }
+function renderCostChart(C) {
+  const box = $c(C, "costplot");
   if (!box) return;
-  const P = costPieces(), n = P.length, N = 20000, SHOW = 400, rnd = rng(31);
+  const P = costPieces(C), n = P.length, N = 20000, SHOW = 400, rnd = rng(31);
   const pick = new Uint8Array(N * n), tot = new Float64Array(N);
   for (let s = 0; s < N; s++) for (let j = 0; j < n; j++) {
     const i = Math.floor(rnd() * P[j].ops.length); pick[s * n + j] = i; tot[s] += P[j].ops[i].preco * P[j].q;
@@ -214,24 +220,24 @@ function renderCost() {
     pts.push({ c: Array.from(pick.subarray(s * n, s * n + n)), t: tot[s], pct: r / (SHOW - 1) * 100 });
   }
   const combos = P.reduce((m, p) => m * p.ops.length, 1);
-  costState = { P, pts, mean, med, min: pts[0].t, max: pts[SHOW - 1].t, combos };
-  costPin = -1;
+  C.S = { P, pts, mean, med, min: pts[0].t, max: pts[SHOW - 1].t, combos };
+  C.pin = -1;
   const k = v => brl(Math.round(v)).replace(/,00$/, "");
   const e = Math.floor(Math.log10(combos)), mant = (combos / 10 ** e).toLocaleString("pt-BR", { maximumFractionDigits: 1 });
-  document.getElementById("costpal").textContent = `${PALETTES[current].label} · opção ${DINING[dining].tag}`;
-  document.getElementById("coststats").innerHTML = [["Mínimo", costState.min], ["Mediana", med], ["Média", mean], ["Máximo", costState.max]]
+  $c(C, "costpal").textContent = `${PALETTES[current].label} · opção ${DINING[dining].tag}`;
+  $c(C, "coststats").innerHTML = [["Mínimo", C.S.min], ["Mediana", med], ["Média", mean], ["Máximo", C.S.max]]
     .map(([l, v]) => `<div class="stat"><span class="label">${l}</span><b>${k(v)}</b></div>`).join("") +
     `<div class="stat"><span class="label">Combinações</span><b>${mant} × 10<sup>${e}</sup></b></div>`;
-  drawCost();
-  showCombo(Math.round(SHOW / 2));
+  drawCost(C);
+  showCombo(C, Math.round(SHOW / 2));
 }
-function drawCost() {
-  const S = costState, box = document.getElementById("costplot"), W = box.clientWidth || 800, H = Math.max(260, Math.min(420, W * 0.5));
+function drawCost(C) {
+  const S = C.S, box = $c(C, "costplot"), W = box.clientWidth || 800, H = Math.max(260, Math.min(420, W * 0.5));
   const m = { l: 84, r: 16, t: 16, b: 34 }, iw = W - m.l - m.r, ih = H - m.t - m.b;
   const raw = (S.max - S.min) / 5, mag = 10 ** Math.floor(Math.log10(raw));
   const step = [1, 2, 2.5, 5, 10].map(f => f * mag).find(v => v >= raw), y0 = Math.floor(S.min / step) * step, y1 = Math.ceil(S.max / step) * step;
   const X = p => m.l + p / 100 * iw, Y = v => m.t + (1 - (v - y0) / (y1 - y0)) * ih;
-  const mil = v => `R$ ${Math.round(v / 1000).toLocaleString("pt-BR")} mil`;
+  const mil = v => `R$ ${(v / 1000).toLocaleString("pt-BR", { maximumFractionDigits: step % 1000 ? 1 : 0 })} mil`;
   let g = "";
   for (let v = y0; v <= y1 + 1; v += step) g += `<line class="grid" x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}"/><text class="tick" x="${m.l - 8}" y="${Y(v) + 4}" text-anchor="end">${mil(v)}</text>`;
   for (const p of [0, 25, 50, 75, 100]) g += `<text class="tick" x="${X(p)}" y="${H - 10}" text-anchor="${p === 0 ? "start" : p === 100 ? "end" : "middle"}">${p}%</text>`;
@@ -240,34 +246,33 @@ function drawCost() {
   const k = v => brl(Math.round(v)).replace(/,00$/, "");
   box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Total de cada combinação, da mais barata à mais cara">
     ${g}${dots}${ref(S.mean, "meanline", `média ${k(S.mean)}`, S.mean >= S.med ? -7 : 16)}${ref(S.med, "medline", `mediana ${k(S.med)}`, S.med > S.mean ? -7 : 16)}
-    <line class="cross" id="costcross" y1="${m.t}" y2="${m.t + ih}" x1="-9" x2="-9"/><circle class="hl" id="costhl" r="7" cx="-20" cy="-20"/>
-    <rect id="costhit" x="${m.l}" y="${m.t}" width="${iw}" height="${ih}" fill="transparent"/></svg><div class="costtip" id="costtip" hidden></div>`;
+    <line class="cross" y1="${m.t}" y2="${m.t + ih}" x1="-9" x2="-9"/><circle class="hl" r="7" cx="-20" cy="-20"/>
+    <rect class="hit" x="${m.l}" y="${m.t}" width="${iw}" height="${ih}" fill="transparent"/></svg><div class="costtip" hidden></div>`;
   S.X = X; S.Y = Y;
-  const hit = box.querySelector("#costhit"), idx = ev => {
+  const hit = box.querySelector(".hit"), idx = ev => {
     const r = hit.getBoundingClientRect(), pct = (ev.clientX - r.left) / r.width * 100;
     return Math.max(0, Math.min(S.pts.length - 1, Math.round(pct / 100 * (S.pts.length - 1))));
   };
-  hit.addEventListener("pointermove", ev => { if (costPin < 0) showCombo(idx(ev), ev); });
-  hit.addEventListener("pointerdown", ev => { const i = idx(ev); costPin = costPin === i ? -1 : i; showCombo(i, ev); });
-  hit.addEventListener("pointerleave", () => { document.getElementById("costtip").hidden = true; });
+  hit.addEventListener("pointermove", ev => { if (C.pin < 0) showCombo(C, idx(ev), ev); });
+  hit.addEventListener("pointerdown", ev => { const i = idx(ev); C.pin = C.pin === i ? -1 : i; showCombo(C, i, ev); });
+  hit.addEventListener("pointerleave", () => { box.querySelector(".costtip").hidden = true; });
 }
-function showCombo(i, ev) {
-  const S = costState, p = S.pts[i], k = v => brl(Math.round(v)).replace(/,00$/, "");
-  const cx = S.X(p.pct), cy = S.Y(p.t), hl = document.getElementById("costhl"), cr = document.getElementById("costcross");
+function showCombo(C, i, ev) {
+  const S = C.S, p = S.pts[i], k = v => brl(Math.round(v)).replace(/,00$/, ""), box = $c(C, "costplot");
+  const cx = S.X(p.pct), cy = S.Y(p.t), hl = box.querySelector(".hl"), cr = box.querySelector(".cross");
   hl.setAttribute("cx", cx); hl.setAttribute("cy", cy); cr.setAttribute("x1", cx); cr.setAttribute("x2", cx);
-  const tip = document.getElementById("costtip");
+  const tip = box.querySelector(".costtip");
   if (ev) {
     tip.hidden = false;
-    tip.innerHTML = `<b>${k(p.t)}</b><span>${Math.round(p.pct)}% das combinações custam menos${costPin === i ? " · fixada" : ""}</span>`;
-    const W = document.getElementById("costplot").clientWidth;
-    tip.style.left = `${Math.min(cx + 12, W - 230)}px`; tip.style.top = `${Math.max(0, cy - 56)}px`;
+    tip.innerHTML = `<b>${k(p.t)}</b><span>${Math.round(p.pct)}% das combinações custam menos${C.pin === i ? " · fixada" : ""}</span>`;
+    tip.style.left = `${Math.min(cx + 12, box.clientWidth - 230)}px`; tip.style.top = `${Math.max(0, cy - 56)}px`;
   }
-  document.getElementById("combohead").innerHTML = `Combinação de <b>${k(p.t)}</b> <span class="label">${i === 0 ? "a mais barata" : i === S.pts.length - 1 ? "a mais cara" : `${Math.round(p.pct)}% custam menos`}</span>`;
-  document.getElementById("combolist").innerHTML = S.P.map((pc, j) => {
+  $c(C, "combohead").innerHTML = `Combinação de <b>${k(p.t)}</b> <span class="label">${i === 0 ? "a mais barata" : i === S.pts.length - 1 ? "a mais cara" : `${Math.round(p.pct)}% custam menos`}</span>`;
+  $c(C, "combolist").innerHTML = S.P.map((pc, j) => {
     const o = pc.ops[p.c[j]], sub = o.preco * pc.q;
     return `<li><span class="cn">${esc(pc.nome)}${pc.q !== 1 ? ` <i>× ${String(pc.q).replace(".", ",")}${UNID[pc.k] ? " " + UNID[pc.k] : ""}</i>` : ""}</span>
       <a href="${esc(o.url)}" target="_blank" rel="noopener nofollow">${esc(o.loja)} · ${esc(o.produto || "")}</a><b>${k(sub)}</b></li>`;
   }).join("");
 }
-new ResizeObserver(() => { if (costState) { drawCost(); } }).observe(document.getElementById("costplot"));
+for (const C of COSTS) { const el = $c(C, "costplot"); if (el) new ResizeObserver(() => { if (C.S) drawCost(C); }).observe(el); }
 renderCost();
